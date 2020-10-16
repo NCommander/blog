@@ -1,0 +1,235 @@
+---
+title: "Restoring Xenix 386 2.2.3c, Part 1"
+date: 2017-03-06T19:42:06-04:00
+draft: false
+author: NCommander
+---
+
+<p></p><b>Note:</b> <i>This post was originally featured on <a href="https://soylentnews.org">SoylentNews</a> on <a
+        href="https://soylentnews.org/article.pl?sid=17/03/03/1620222">March 3rd, 2016</a></i></p>
+
+One of my favorite hobbies is both retrocomputing projects, and the slightly more arcane field of software archeology;
+the process of restoring and understanding lost or damaged pieces of history. Quite a while ago, I came across the
+excellent OS/2 Museum, run by Michal Necasek which helps categorize many of the more obscure bits of PC history,
+including <a href="http://www.os2museum.com/wp/category/xenix/">a series of articles about Xenix</a>, Microsoft’s
+version of SVR2 UNIX.
+
+<p>What caught my attention were two articles talking about Xenix 386 2.2.3c, a virtually undocumented release that
+    isn’t mentioned in much if any of the Santa Cruz Operation's (SCO, but see footnote) surviving literature of the
+    time. Michal documented [<a href="http://www.os2museum.com/wp/the-xenix-386-2-2-3-mystery/">1</a>], [<a
+        href="http://www.os2museum.com/wp/the-xenix-2-2-3-mystery-continued/">2</a>] his efforts at the time, and
+    ultimately concluded that the media was badly corrupted. Not knowing when to give up, I decided to give it a try and
+    see if anything could be salvaged. As of this writing, and working with Michal, we’ve managed to achieve
+    approximately 98% restoration of the product as it would have existed at the time.</p>
+
+<p>
+    <img src="/images/2017_03_06_xenix_part1/xenix386_uname.png" alt="Xenix 386 booted with uname">
+
+</p>
+
+<p>I’m going to write up the rather long and interesting quest of rebuilding this piece of history. I apologize in
+    advance about the images in this article, but we only recently got serial functionality working again, and even
+    then, early boot and installation has to be done over the console.</p>
+
+<p>* - SCO in this case refers to the original <em>Santa Cruz Operation</em>, and not the later <em>SCO Group</em> who
+    bought the name and started the SCO/Linux lawsuits.</p>
+
+<p>Read more past the fold.</p>
+
+<h3>Historical Background</h3>
+<p>From a historical perspective, Xenix is interesting as it was one of the first (if not the first) operating systems
+    to take advantage of Protected Mode on the iAPX 80286 without being hamstrung by lack of backwards compatibility.
+    I’ve talked about the 286 before on SoylentNews, but to summarize, the 80286 was the first processor with Protected
+    Mode. However, it didn’t support paging, and the switch from real mode (8086 compatibility) to protected mode was
+    one way; there was no official way to return to real mode without restarting the processor, and neither DOS, nor
+    BIOS could operate in Protected Mode. To my knowledge, it was the only operating system to adopt the view that a
+    system would enter protected mode, and never return to 16-bit compatibility. As such, it’s implementation of
+    protected mode is somewhat different than most people are familiar with.</p>
+
+<p>Instead, the 80286 was intended to allow running legacy DOS applications in real mode, while people would upgrade to
+    new protected mode operating systems and software. <strike>The much loathed real mode segmentation system was
+        revamped as well due to the new 32-bit register size, and it was now possible to have segments up to 16 MiB (a
+        tremendous amount of memory at the time) in size, allowing applications to operate with a de-facto flat memory
+        model.</strike></p>
+
+<p><b>Correction:</b> Wow, I went wrong here. The 80286's protected mode allowed segments to reside in a 24-bit address
+    space, but were limited to 16-bits (64k) in length. The 80386 changed the rules to allow larger segment size by
+    using additional fields on the LDT and GDT to extend the base, limit and a size modifer.</p>
+
+<p>Additionally, Xenix was one of the most polished, and featureful UNIX systems of it's time. Out of the box, the
+    system was the originator of virtual terminals, and supported both UUCP networking, and RS-232 serial based MicNet,
+    and bridging between the two. MicNet appears to have been Microsoft's answer to AppleTalk as a very low cost
+    networking solution, and allowed multiple systems to appear as one single UUCP node on the bang path. We'll explore
+    both these features in later articles.</p>
+
+<p>For software installation, Xenix's "custom" utility provided full featured package management, installation and
+    removal, and even allowed per-file selection, relatively on par with modern Linux package management. Beside the
+    stock operating system, Xenix had official add-on packages for international support, K&R based C compilers for DOS
+    and Xenix, and a text processing system based on AT&T's troff. Third party solutions provided STREAMS and TCP/IP
+    support before these features were added in Xenix 2.3.</p>
+
+<p>System administration utilities for the most part were interactive, and easy to use, allowing for quick and easy
+    setup of networking, printers, and user administration, and the system could dual boot with DOS. Combined with the
+    visual shell, it's likely one of the best experiences you could get on a UNIX system of the era, and in many ways,
+    still holds up today, nearly 30 years later. Microsoft was pushing Xenix heavily, and for a time, it was intended as
+    the true replacement to the 16-bit DOS. However, fate intervened.</p>
+
+<p>In 1984, following the break-up of Bell System (https://en.wikipedia.org/wiki/Breakup_of_the_Bell_System) into the
+    baby bells, AT&T decided to enter the computer market and directly sell UNIX System V. Microsoft decided that they
+    didn’t want to compete against AT&T, and began to collaborate with IBM to create what would become known as OS/2. In
+    1987, Microsoft transferred ownership of Xenix to the Santa Cruz Operation, and SCO began porting the operating
+    system to take advantage of the 80386 and creating Xenix 386.</p>
+
+<p>The most commonly known release of Xenix 386 is the 2.3, supported alongside the earlier Xenix 286 2.2 releases, and
+    SCO’s Support Level Supplements simultaneously supported both releases. The SLS index only shows a single update for
+    “Xenix 386 2.2.1-2.2.3” for UUCP, but an examination of that update shows that this appears to be a mislabeling, as
+    the binaries it contained target the 286.</p>
+
+<p>So, what exactly is this unusual 2.2.3c release then? To find that out, I needed to get the thing running.</p>
+
+<h3>Stumbling Towards Boot</h3>
+
+<p>The images floating around on the internet come in two forms, a set of TeleDisk TD0 images, and a group of raw 720
+    kilobyte raw images, suitable for use in a VM (or with dd). Much later in our recovery effort, we eventually
+    determined that the TD0 images were the originals, and the raw images were later created from these.</p>
+
+<p>Initially though, I just wanted to get it to start. The image files contained six operating system (known as N1-6)
+    disks, “Basic Utilities” (B1-2) disks, “Extended Utilities” (X1-5) disks, three International Supplement disks, and
+    a single games disk. An initial examination of the disks showed that N1 and N2 had a Xenix filesystem, and the rest
+    were simply raw tar archives that I could extract with GNU tar (with some warnings). The vast majority of data
+    looked intact, so I grabbed QEMU, and popped N1 in and booted it up.</p>
+
+<p>
+
+    <img src="/images/2017_03_06_xenix_part1/n1_boot.png" alt="N1 Boot">
+
+</p>
+
+<p>Unfortunately, the system would hang almost immediately after. Some testing revealed that the same issue existed on
+    Bochs. PCjs got a bit further, but kernel panicked nearly immediately. Somewhat surprising to me though was
+    VirtualBox not only booted, it got to the first step of the installer.</p>
+
+<p>
+
+    <img src="/images/2017_03_06_xenix_part1/language_selection.png" alt="Language Selection">
+
+</p>
+
+<p>Some time later, I did discover the failure here, but I’ll save that story for another article :). */evil*</p>
+
+<p>With the first hurdle passed, it wasn’t long before another problem reared its ugly head (more later). Unfortunately,
+    shortly after <em>that</em>, the system would hang trying to partition /dev/hd0.</p>
+
+<p>
+
+    <img src="/images/2017_03_06_xenix_part1/partition_hang.png" alt="Partitioning Hang">
+
+</p>
+
+<p>Some trial and error showed that if I started the system up without any IDE drives, I could successfully get through
+    to the partitioning screen. As I know Michal had gotten farther in his resurrection attempt, I dropped him an email,
+    and began to dig into the both the boot hang, and the IDE driver, and get a debugging build of VirtualBox setup. As
+    we exchanged emails, I learned Michal had not only found the IDE issue, he also had managed to extract a full set of
+    debugging symbols and offsets, and some tips with using the VirtualBox debugger.</p>
+
+<p>I’ll let him explain in his own words:</p>
+
+<blockquote>
+    <div>
+        <p>Hi Michael,</p>
+
+        <p>Here’s my analysis. The wd1010 driver in this version of Xenix is just plain wrong, and they were just lucky
+            that it worked.</p>
+
+        <p>The problem is unquestionably with the INITIALIZE PARAMETERS command. The command is automatically executed
+            by the _wdio routine if it finds that it hasn’t been done yet. All the code is in _wdio. It writes all the
+            registers except for the command register. Then it potentially executes a loop which writes the command
+            register and immediately reads the status register. If the error bit is set, the command is written again
+            and the loop repeats until the error register is not set.</p>
+
+        <p>What happens in VirtualBox is that reading the status register clears the interrupt triggered by INITIALIZE
+            PARAMETERS. That is the correct behavior, because reading the status register is *supposed* to clear the
+            interrupt. Now at this point the CPU runs with interrupts enabled, but the disk interrupt is masked because
+            the driver executed _spl5 further up the call stack in _wdstrategy. The interrupt is cleared from the device
+            and from the controller, and the OS never receives it.</p>
+
+        <p>But the OS relies on the interrupt. It’s supposed to execute _wdintr, notice that INITIALIZE PARAMETERS was
+            executed, set up a RECALIBRATE command into _wdjob and call _wdio again to continue with I/O. Once the
+            interrupt from RECALIBRATE is processed, _wdjob is set up with a read or a write command, _wdio is executed,
+            and the actual I/O happens.</p>
+
+        <p>Because the interrupt is cleared too soon, the state machine breaks down and the OS just sits there totally
+            idle because it has nothing to do.</p>
+
+        <p>It appears that in old drives, INITIALIZE PARAMETERS [took] some non-negligible time to execute and reading
+            the status register right after writing the command did not clear the interrupt because the command hadn’t
+            yet set it. But then it is wrong to read the status register because if the command is going to fail, it’s
+            probably going to take some time to fail, too.</p>
+
+        <p>This would be solved by making INITIALIZE PARAMETERS take a millisecond or two to complete. It is probably
+            much easier to patch Xenix to do what it should have been doing all along, i.e. reading the alternate status
+            register (3F6h instead of 1F7h) which does not clear interrupts.</p>
+
+    </div>
+</blockquote>
+
+<h3>A 30-Year Old Bug</h3>
+
+<p>For those less versed in ATA/IDE interfaces, let me translate this into more basic English. On x86 compatible
+    machines, access to the hard drive is controlled via a dedicated hard-drive controller and managed via the port I/O
+    interface on the process (using in/out opcodes). ATA commands are written to these registers. In this case, Xenix is
+    sending the INITIALIZE PARAMETERS command which brings the drive out of reset, and sets up the addressing mode.</p>
+
+<p>The designers of the ATA specification designed it such a way that I/O operations can be asynchronous; the CPU sends
+    a command, and then goes to do something else. When the hard drive is ready for more, it raises an interrupt,
+    telling the processor to send another command. This interrupt is cleared by reading from the primary status register
+    at 0x1F7. This behavior is by design and has been a part of the ATA specification since day one. In some cases
+    however, one may simply want to poll the drive to know its status without changing interrupt statuses. For this
+    purpose, an alternate status register at 0x3F7 is provided. </p>
+
+<p>Xenix uses lazy initialization; that is to say that a device isn’t initialized until it’s used; the wd driver is
+    never executed until something accesses /dev/hd0, and thus why it hangs at partitioning and not during IPL. When
+    fdisk starts, the wd driver attempts to initialize the drive, and immediately reads the status register to check for
+    any possible error codes. Afterwards, it waits for the IDE controller to generate an interrupt letting it know the
+    drive is ready. In doing so, Xenix clears the interrupt it would get from the INITIALIZE PARAMETERS command, and
+    gets stuck in a spinloop. As such, the hang is caused by a legitimate bug in Xenix in its IDE implementation and can
+    occur on real hardware.</p>
+
+<p>It’s hard to say if this was actually a problem in 1987, however, older releases of Xenix were known to be incredibly
+    picky about the hardware they would work on, and prevailing logic on USENET was that older releases of Xenix would
+    flat out break on any processor faster than 50 Mhz, partially due to bugs like this. However, Xenix 2.3 (which was
+    released not long after this version) rewrote the wd driver to not suffer from this race condition, so it likely was
+    as much a problem then as it was now. As Michal noted, its possible to read the status register without clearing the
+    interrupt, and get the behavior Xenix wants. One quick hex edit later, and I now get this.</p>
+
+<p>
+
+
+<p><img src="/images/2017_03_06_xenix_part1/disk_geometry.png" alt="Disk Geometry"></p>
+<p><img src="/images/2017_03_06_xenix_part1/select_partition.png" alt="Select Partition"></p>
+<p></p><img src="/images/2017_03_06_xenix_part1/finishing_up.png" alt="Finishing up"></p>
+
+</p>
+
+<p>Success! Due to the fact that it uses CHS (Cylinder, Head, and Sector) addressing and bypasses the BIOS, Xenix tops
+    out at a maximum drive size of 504 MiB. After a few basic questions, I’m prompted to remove N2, and reboot.</p>
+
+<p>
+
+    <img src="https://soylentnews.org/blob.pl?id=725041afcecf174028380826da06ac8a" alt="Reboot">
+
+</p>
+
+<p>N1 goes back in as per the instructions, I cross my fingers, push Enter and …</p>
+
+<p>
+
+    <img src="https://soylentnews.org/blob.pl?id=14144b702743ad52b9613f53e123f3d4" alt="Dreaded Z Hang">
+
+</p>
+
+<p>It hangs. Crud.</p>
+
+<p>In our next installment, we'll go into trying to manually start the operating system when the only commands we have
+    are tar, mount, dd, and sh, along with the Xenix manifest files, and thereby crash head first into Xenix's copy
+    protection.</p>
