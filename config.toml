@@ -1,6 +1,6 @@
 baseURL = "http://example.org/"
 languageCode = "en-us"
 title = "NCommander's Tech Corner"
-theme = "ananke"
+theme = "bootstrap4"
 
 enableGitInfo = true
