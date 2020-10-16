@@ -1,0 +1,155 @@
+---
+title: "Review: Hesiod Name Services System"
+date: 2015-07-14T19:42:06-04:00
+draft: false
+author: NCommander
+tags: [hesiod, obsecure, soylentnews repost]
+
+---
+
+<p>Most system administrators working with a large number machines will be at least passingly familiar with <a
+        href="https://en.wikipedia.org/wiki/Lightweight_Directory_Access_Protocol">LDAP</a>, or it's Microsoft's
+    incarnation as Active Directory. Like most organizations, we used LDAP to organize shell account information for
+    SN's backend servers, and spent the last year and a half cursing because of it. As such, we've recently replaced
+    LDAP with a much older technology known as <a href="https://en.wikipedia.org/wiki/Hesiod_(name_service)">Hesiod</a>,
+    which is a DNS-based system of storing user accounts and other similar information. Given Hesiod's unique history
+    (and relative obscurity), I though it would be interesting to write a review and detailed history of this relic, as
+    well as go more in-depth why we migrated.</p>
+
+<p>In this novel:</p>
+
+<ul>
+    <li>Why We Dumped LDAP</li>
+    <li>Project Athena</li>
+    <li>Overview of Hesiod</li>
+    <li>Drawbacks</li>
+    <li>In Closing</li>
+</ul>
+
+<h2>Why We Dumped LDAP</h2>
+<p>One of the golden rules of system administration is "if it ain't broke, don't fix it". Given that LDAP is generally
+    considered critical infrastructure for sites that depend on it, its worth spending a few moments explaining why we
+    replaced it. Our LDAP backend was powered by <a href="http://www.openldap.org/">OpenLDAP</a>, which is generally the
+    de facto standard for LDAP servers on Linux. In our experience though, OpenLDAP is extremely difficult to configure
+    due to storing its configuration information within the LDAP tree itself (under cn=config), and being incredibly
+    difficult to examine its current state, as well as recovering from any misconfiguration. In practice, I found it
+    necessary to dump the entire LDAP configuration, modify the raw LDIF files, and then reimport with slapcat, and then
+    pray. Painful, but manageable since, in practice, the overall server configuration shouldn't change frequently.</p>
+
+<p>Unfortunately, every aspect of OpenLDAP has proven to be painful to administer. In keeping with the idea that none of
+    our critical infrastructure should have single points of failure, we established replica servers from our master,
+    and configured client systems to look at the replicas in case the master server take a dive (or is restarting).
+    While a noble idea, we found that frequently without warning or cause, replication would either get out of sync, or
+    simply stop working all together with no useful error messages being logged by slapd. Furthermore, when failover
+    worked, systems would start to lag as nss_ldap kept trying to query the master for 5-10 seconds before switching to
+    the slave for each and every query. As a whole, the entire setup was incredibly brittle.</p>
+
+<p>While many of these issues could be laid at OpenLDAP (vs. LDAP itself as a protocol), other issues compounded to make
+    life miserable. While there are other LDAP implementations such as <a
+        href="https://en.wikipedia.org/wiki/389_Directory_Server">389 Directory Server</a>, the simple fact of the
+    matter is that due to schema differences, no two LDAP instances are directly compatible with each other; one can't
+    simply copy the data out of OpenLDAP and import it directly into 389. The issue is further compounded if one is
+    using extended schemas (as we were to store SSH public keys). As such, when slapd started to hang without warning,
+    and without clear indication as of why, the pain got to the point of looking for a replacement rather than keep
+    going with what we were using.</p>
+
+<p>As it turns out, there are relatively few alternatives to LDAP in general, and even fewer supported by most Linux
+    distributions. Out of the box, most Linux distributions can support LDAP, <a
+        href="https://en.wikipedia.org/wiki/Network_Information_Service">NIS</a>, and Hesiod. Although NIS is still well
+    supported by most Linux distributions, it suffers from security issues, and many same issues with regards to
+    replication and failover. As such, I pushed to replace LDAP with Hesiod, which was originally designed as part of
+    Project Athena.</p>
+
+<h2>Project Athena</h2>
+
+<p>Hesiod was one of the many systems to originate out of Project Athena, a joint project launched between MIT, DEC, and
+    IBM in the early 80s to create a system of distributed computing across a campus, eventually terminating in 1991.
+    Designed to work across multiple operating systems, and architectures, the original implementation of Athena laid
+    out the following goals:</p>
+
+<ul>
+    <li>To develop computer-based learning tools that are usable in multiple educational environments</li>
+    <li>Establish a base of knowledge for future decisions about educational computing.</li>
+    <li>Create a computational environment supporting multiple hardware types</li>
+    <li>Encourage the sharing of ideas, code, data, and experience across MIT</li>
+</ul>
+
+<p>As such, work coming from Project Athena was released as free-and-open source software, and provided a major
+    cornerstone in early desktop and networking environments that are commonly in use today such as <a
+        href="https://en.wikipedia.org/wiki/X_Window_System#History">X Windows</a>, and <a
+        href="https://en.wikipedia.org/wiki/Kerberos_(protocol)">Kerberos</a>.</p>
+
+<p>As of 2015, 34 years after Athena was started, its underlying technology is still at MIT today, in the form of <a
+        href="https://debathena.mit.edu/">DebAthena</a>.</p>
+
+<h2>Overview of Hesiod</h2>
+
+<p>Moving away from the history, and onto the actual technology itself, as indicated above, Hesiod is based in DNS, and
+    takes the form of TXT records (the TXT record type itself was designed for Hesiod, as was the HS class). A sample
+    Hesiod record for a user account looks like this:</p>
+<p>
+<pre>mcasadevall.passwd      IN TXT          "mcasadevall:*:2500:2500:Michael Casadevall:/home/mcasadevall:/bin/bash"
+2500.uid                IN CNAME        mcasadevall.passwd
+mcasadevall.grplist     IN TXT          "sysops:2501:dev_team:2503:prod_access:2504"
+</pre>
+</p>
+
+<p>For those familiar with the format of /etc/passwd, the format is obvious enough. Out of the box, hesiod supports
+    distributing users and groups, printcap records (for use with LPRng), mount tables, and service locatator records.
+    With minor effort, we were also able to get it to support SSH public keys. Since Hesiod is based on DNS, data can be
+    replicated via normal zone transfers, as well as updated via dynamic DNS updates. Since DNS is not normally
+    enumerable in normal operation, CNAME records are required to allow lookups for ids to be successful.</p>
+
+<p>New types of records can be created by simply adding a new TXT record. For instance, for each user, we encode their
+    SSH public keys as a (username).ssh TXT record. The standard hesinfo can properly query and access these records,
+    making it easy to script:</p>
+
+<p>
+<pre>mcasadevall@lithium:~$ hesinfo mcasadevall ssh
+ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA4T3rFl8HondKnGq3+OEAoXzhsZL3YyzRIMCFQeD6aLLHCoVGAwUs3cg7bqUVshGb3udz5Wl/C4ym1aF5Uk5xaZWr2ByKZG6ZPFQb2MZbOG+Lcd5A14gSS2+Hw6+LIoMM8u6CJvIjbTHVI2wbz/ClINDEcJC0bh+YpuaKWyt2iExHATq153ST3dih+sDDK8bq6bFMKM8sdJHl9soKGo7V7i6jIn8E84XmcdTq8Gm2gt6VhOIb/wtr1ix7nxzZ7qCxAQr//FhJ8yVsmHx7wRwkndS7muPfVlVd5jBYPN74AvNicGrQsaPtbkAIwlxOrL92BsS6xtb+sO2iJYHK/EJMoQ== mcasadevall@blacksteel
+</pre>
+</p>
+
+
+<p>As such, Hesiod is easy to expand, and provides both command line applications, and the libhesiod API to both query
+    and expand the information Hesiod is able to deliver, and can be deployed to any environment where a sysadmin can
+    control DNS records. As of writing, a set of utilities to integrate and easily manage Hesiod on Amazon EC2's DNS
+    Service (known as Route53) exist in the form of <a href="https://github.com/fullcontact/hesiod53">Hesiod53</a>.
+<h2>Drawbacks to Hesiod</h2>
+
+<p>Hesiod inherits several drawbacks due to being based upon DNS. Primarily, it can be affected by various cache
+    poisoning attacks, or hijacking upstream DNS servers. These weaknesses can be mitigated by implementation of <a
+        href="https://en.wikipedia.org/wiki/DNSCurve">DNSCurse</a> or <a
+        href="https://packages.debian.org/jessie/dnssec-trigger">client-side validation of DNSSEC records</a> (standard
+    DNSSEC does not autheticate the "last mile" for DNS queries). Like NIS, if password hashes are stored in Hesiod,
+    they're world-readable, and vulnerable to offline analysis; for this reason, Hesiod should be deployed alongside
+    Kerberos (and pam_krb5) for secure authentication of users and services. At SN, we've been using Kerberos since day
+    1 for server-to-server communication (and single-sign on for sysadmins), so this was trivial for us. Other
+    organizations may have more difficulty.</p>
+
+<p>Furthermore, under normal circumstances, DNS records can not be enumerated, and nss_hesiod will not provide any
+    records if an application queries for a full list of users (for example, getent passwd on a shell will only return
+    system local users). This may break some utilities who are dependent on getting a full list of users, though in over
+    a month of testing on our development system (lithium), we weren't able to find any sort of breakage.</p>
+
+<p>Finally, although this problem is not inherent to Hesiod, at least on Linux systems, attempts to query users not in
+    /etc/passwd can hang early boot for several minutes. The same issue manifests itself with use of nss_ldap and SSSD.
+    As of writing, we have not determined a satisfactory workaround for the problem, but as our core services are
+    redundant and support automatic failover, a 5-10 minute restart time isn't a serious issue for us.</p>
+
+<p>Finally, although most UNIX and UNIX-likes support Hesiod, there's no support for it on Windows or Mac OS X.
+<h2>In Closing</h2>
+
+<p>Due to its ease of use, we're expectant that Hesiod will drastically reduce the pain of system administration, and
+    removes a service that has proven to be both problematic, and overly complex. While I don't expect a major upswing
+    in Hesiod usage, in practice, it works very well in cloud environments, and for those who find the use of LDAP
+    painful, I highly recommend you experiment in evaluating it as long as one is mindful of it's limitations</p>
+
+<p>I hope you all enjoyed this look at this rather obsecure, but interesting piece of history, and if people are
+    interested, I can be tempted to write more articles of this nature.</p>
+
+<p>~ NCommander</p>
+
+
+<p><b>Note: This post originally appeared on <a href="https://soylentnews.org">SoylentNews</a> on <a
+    href="https://soylentnews.org/meta/article.pl?sid=15/07/13/0255214">August 30th, 2016</a></b></p>
