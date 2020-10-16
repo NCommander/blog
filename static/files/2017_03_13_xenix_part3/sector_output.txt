@@ -1,0 +1,70 @@
+Operating System 1.img:
+sector 609 (4c000)is missing
+sector 645 (50800) to 822 (66c00) is missing
+sector 825 (67000) to 1022 (7fc00) is missing
+sector 1025 (80000) to 1222 (98c00) is missing
+215 sectors at end empty, starting at 1225
+
+Operating System 2.img:
+sector 1 (0) to 2 (400) is missing
+sector 717 (59800)is missing
+sector 720 (59e00)is missing
+sector 1045 (82800) to 1222 (98c00) is missing
+215 sectors at end empty, starting at 1225
+
+Operating System 3.img:
+1025 sectors at end empty, starting at 415
+
+Operating System 4.img:
+sector 662 (52a00)is missing
+71 sectors at end empty, starting at 1369
+
+Operating System 5.img:
+sector 1172 (92600)is missing
+sector 1177 (93000)is missing
+17 sectors at end empty, starting at 1423
+
+Operating System 6.img:
+953 sectors at end empty, starting at 487
+
+Extended Utilities 1.img:
+sector 1112 (8ae00)is missing
+sector 1115 (8b400)is missing
+17 sectors at end empty, starting at 1423
+
+Extended Utilities 2.img:
+sector 1229 (99800)is missing
+17 sectors at end empty, starting at 1423
+
+Extended Utilities 3.img:
+sector 543 (43c00)is missing
+sector 1115 (8b400)is missing
+17 sectors at end empty, starting at 1423
+
+Extended Utilities 4.img:
+sector 1179 (93400)is missing
+17 sectors at end empty, starting at 1423
+
+Extended Utilities 5.img:
+sector 578 (48200)is missing
+683 sectors at end empty, starting at 757
+
+Basic Utilities 1.img:
+sector 1233 (9a000)is missing
+17 sectors at end empty, starting at 1423
+
+Basic Utilities 2.img:
+773 sectors at end empty, starting at 667
+
+International Supplement 1.img:
+sector 1188 (94600)is missing
+17 sectors at end empty, starting at 1423
+
+International Supplement 2.img:
+sector 582 (48a00)is missing
+17 sectors at end empty, starting at 1423
+
+International Supplement 3.img:
+sector 1155 (90400)is missing
+269 sectors at end empty, starting at 1171
+
