@@ -1,5 +1,5 @@
 ---
-title: "Examining Windows 1.0 HELLO.C - 35 Years of Backwards Compatibility"
+title: "Exploring Windows for Workgroups 3.11 - Early 90s Networking"
 date: 2020-05-26T12:00:00-04:00
 draft: false
 author: NCommander
@@ -17,9 +17,9 @@ tags: [windows for workgroups, virtualization fun, broken things, networking, re
 <p>As with the previous article, there's a YouTube video covering most of the content as well as: a live demonstration
     of Windows for Workgroups in action, my personal experiences, and the best startup chimes of the early 90s.</p>
 
-<p><a href="https://www.youtube.com/watch?v=muFhbgIvF4w"><img
-            src="https://soylentnews.org/blob.pl?id=6a4be558197117556b2ee7d2b572d9ee"
-            alt="Exploring Windows for Workgroups 3.11"></a></p>
+<p><iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/muFhbgIvF4w" frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe></p>
 
 <h3>The Windows 3.1 Family Tree</h3>
 <p>The 16-bit family tree of Microsoft Windows can be a tangled beast, especially when we get to the topic of Windows
@@ -57,7 +57,7 @@ tags: [windows for workgroups, virtualization fun, broken things, networking, re
 <p>Windows 3.11 is something of a mystery to me. The freestanding upgrade has been archived, and I even went as far as
     to install it to examine differences. In short, I found one:</p>
 
-<p><img src="https://soylentnews.org/blob.pl?id=90e0f994ecb6f104d6398a048e98bde5" alt="Windows 3.11 About"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/windows_311_about.png" alt="Windows 3.11 About"></p>
 
 <p>Notably, Windows 3.11 still supported the 80286 and Standard Mode, and still brands itself as Windows 3.1 on the
     installer and splash screen. As such, it's actually a distinct kernel than the later WfW 3.11. This, of course,
@@ -82,7 +82,8 @@ tags: [windows for workgroups, virtualization fun, broken things, networking, re
     mutually incompatible. Microsoft itself has its own hat in the ring, its LAN Manager Server for OS/2, and Microsoft
     Workgroups Add-on for DOS.</p>
 
-<p><img src="https://soylentnews.org/blob.pl?id=41f15f4c500f6fa682d18ed44f4539ad" alt="Workgroup Add-On" height="50%">
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/worksgroups_addon.png" alt="Workgroup Add-On"
+        height="50%">
 </p>
 
 <p>Initially, this wasn't a problem. Most shops would have a single network (and of those, most commonly Novell NetWare)
@@ -109,7 +110,7 @@ tags: [windows for workgroups, virtualization fun, broken things, networking, re
     the box. Instead, Microsoft initially left this entire market to third-party developers, leading to one of the most
     pirated pieces of software of this era: Trumpet Winsock</p>
 
-<p><img src="https://soylentnews.org/blob.pl?id=244e3d9312293934a6fca2bffb7c90f1" alt="Trumpet Winsock"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/trumpet_winsock.png" alt="Trumpet Winsock"></p>
 
 <p>Many other vendors and even ISPs shipped their own versions of Windows Sockets which powered the first Internet
     applications on Windows 3.1. For example, AOL for Windows became notable on the basis that it provided Winsock and
@@ -156,7 +157,7 @@ tags: [windows for workgroups, virtualization fun, broken things, networking, re
 
 <p>One problem: Windows suffered an EIOIO error and bit the farm when I installed the networking stack.</p>
 
-<p><img src="https://soylentnews.org/blob.pl?id=f514bd758639d666350ca7ae44bc5edf"
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/general_protection_fault.png"
         alt="Windows General Protection Fault"></p>
 
 <p>In truth, I didn't actually even get that far initially. Windows would just crash to a flashing cursor, and creating
@@ -176,7 +177,7 @@ tags: [windows for workgroups, virtualization fun, broken things, networking, re
     the PCNet card, the latter of which I eventually got to work successfully. Of course, it wasn't that simple. My
     initial full system hang was replaced with GDI packing it up.</p>
 
-<p><img src="https://soylentnews.org/blob.pl?id=6148449a4a64b00f0337e8f306463c8c" alt="GDI Crash"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/gdi_crash.png" alt="GDI Crash"></p>
 
 <p>Trial and error showed that this was a problem trying to run networking combined with more than 16 colors at the same
     time. I would eventually determine that by using a Super VGA 800x600 16 color driver partially solved the issue. I
@@ -185,7 +186,7 @@ tags: [windows for workgroups, virtualization fun, broken things, networking, re
 
 <p>At this point, I was getting rather frustrated, and so I resorted to desperate measures. How desperate?</p>
 
-<p><img src="https://soylentnews.org/blob.pl?id=d96ab391b83a3c9e9f996191c005ddc4" alt="Windows Debug About"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/win_debug.png" alt="Windows Debug About"></p>
 
 <p>Desperate enough to setup a DEBUG build of Windows which in and of itself was its own set of fails.</p>
 
@@ -195,7 +196,7 @@ tags: [windows for workgroups, virtualization fun, broken things, networking, re
     under the hood. My first stop was Visual C++ 1.52 which was the last 16-bit version and included the Windows 3.1
     SDK.</p>
 
-<p><img src="https://soylentnews.org/blob.pl?id=7fb9c654b4eb3c367c6be3ef43655360" alt="Visual C++ 1.52"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/visual_cplusplus_152.png" alt="Visual C++ 1.52"></p>
 
 <p>Setting up a debug build of Windows is a bit of an experience. Replacement files for core system are shipped in the
     SDK in the aptly named DEBUG folder, and the scripts <tt>n2d</tt> and <tt>d2n</tt> can convert your release to
@@ -278,7 +279,8 @@ FATAL ERROR:  Attempt to crash System VM
 <p>At this point, I had already figured out a set of QEMU settings that worked to film my video. At this point, I should
     have realized I had already opened pandora's box. Instead, I doubled down.</p>
 
-<p><img src="https://soylentnews.org/blob.pl?id=cacc80a156e3841fc7195befe526c7ae" alt="*" width="50%"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/debugging_side_by_side.png"
+        alt="side-by-side windows debugging" width="50%"></p>
 
 <p>This wasn't exactly an ideal solution to the problem, but it got the job done. I also managed to get actual crash
     messages, at which point WDEB386's terribleness struck further. I couldn't get a stack trace out of it, and I had
@@ -318,7 +320,7 @@ FATAL ERROR:  Attempt to crash System VM
     Assuming you're one of the anointed few, the network setup application is your key to the best of early 90s
     networking. Simply click the icon, insert your floppy disks, and away you go.</p>
 
-<p><img src="https://soylentnews.org/blob.pl?id=2c791598a68340ca61b9f32e937a43bd" alt="Network Setup"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/network_setup.png" alt="Network Setup"></p>
 
 <p>What isn't obvious though what's missing. The first quirk comes from the fact that TCP/IP (as previously noted) is
     nowhere to be found. This actually wasn't a big deal back in 1993. At the time neither RFC1918 network space nor
@@ -343,7 +345,7 @@ FATAL ERROR:  Attempt to crash System VM
     the networking parts of Windows independent of Windows. This still uses real mode drivers, and I suspect is
     identical to Workgroups for DOS.</p>
 
-<p><img src="https://soylentnews.org/blob.pl?id=4b55565cad2d2c4067eba644026d09c5" alt="NET on DOS"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/net_on_dos.png" alt="NET on DOS"></p>
 
 <p>Once setup though, many applications gained a large variety of network aware options that were previously hidden.
     File Manager gained file sharing and network drive functionality that is very close to what shipped in Windows 95.
@@ -351,16 +353,16 @@ FATAL ERROR:  Attempt to crash System VM
     share Clipbooks between users. This used NetDDE and essentially acted liked a shared network database. It only
     worked while the application was open, however.</p>
 
-<p><img src="https://soylentnews.org/blob.pl?id=c317a0597a557d304ea5dd2b653ffacd" alt="File Manager"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/fileman.png" alt="File Manager"></p>
 
-<p><img src="https://soylentnews.org/blob.pl?id=ede67fcc2e8ba089430322c5f0de8bea" alt="Print Manager"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/printman.png" alt="Print Manager"></p>
 
-<p><img src="https://soylentnews.org/blob.pl?id=ea5ebd0779423b790d7c363a8b05bf2b" alt="ClipBook Sharing"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/clipbook.png" alt="ClipBook Sharing"></p>
 
 <p>Hearts, which also appeared in this version of Windows, could be played with three other players over the network.
     The application was called "The Microsoft Hearts Network" to emphasis this fact.</p>
 
-<p><img src="https://soylentnews.org/blob.pl?id=55a06dd93c5ccae4f7f164d8bfeddcc4" alt="Hearts"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/hearts.png" alt="Hearts"></p>
 
 <p>Most of this functionality persisted across multiple Windows versions, although as of Windows 10, only the file and
     printer sharing has more or less survived as-is. Of course, though, we still have a large suite of applications to
@@ -370,7 +372,7 @@ FATAL ERROR:  Attempt to crash System VM
 
 <h3>Microsoft Mail</h3>
 
-<p><img src="https://soylentnews.org/blob.pl?id=4240af993adc2e35fa26d77e380c713c" alt="Microsoft Mail"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/msmail.png" alt="Microsoft Mail"></p>
 
 <p>Microsoft Mail itself is an interesting topic that it will likely get its own video and article at a later point. As
     the name suggests, it is a simple mail client application capable of LAN email. Originally, Microsoft Mail was an
@@ -388,15 +390,15 @@ FATAL ERROR:  Attempt to crash System VM
     other systems, a daemon called EXTERNAL was available for OS/2 which could bridge Mail to UUCP networks and more
     standard SMTP. This was not tested for this article.</p>
 
-<p><img src="https://soylentnews.org/blob.pl?id=0ee2d726c6169ba2072008680cfd7d86" alt="Mail First Start"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/mail_first_start.png" alt="Mail First Start"></p>
 
-<p><img src="https://soylentnews.org/blob.pl?id=6996d731f8cc40ed291ce973ee6c5741" alt="Create first user"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/create_first_user.png" alt="Create first user"></p>
 
 <p>Rather notably, passwords are shown in the clear. In truth, there's no actual security in this product as any user
     could access the shared mailbox directory and download all the mail on the server. Preferences also have an
     interesting radio box for selecting your security level:</p>
 
-<p><img src="https://soylentnews.org/blob.pl?id=27e8d36921a62985351b77b0071f4263"
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/security_vs_doublespace.png"
         alt="The GREATEST Security switch ever!"></p>
 
 <p>I leave it to the readers to comment on why this is such an inane switch!</p>
@@ -419,21 +421,21 @@ FATAL ERROR:  Attempt to crash System VM
 <p>Rather hilariously, Schedule+ suffers from a Y2020 problem, so I had to turn back the system clock to use it at all.
 </p>
 
-<p><img src="https://soylentnews.org/blob.pl?id=cfe478878b113c19b34b7d6f202a626e" alt="Y2020 problem"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/y2020_problem.png" alt="Y2020 problem"></p>
 
 <p>Once reality had been suitably rewritten, Schedule+ fired up without issue. Integration with Mail is quickly apparent
     as it immediately prompts to log into your Mail account, although it is possible to use Schedule+ in a local-only
     mode.</p>
 
-<p><img src="https://soylentnews.org/blob.pl?id=5387c667a8b78194ba07b7db8af4d888" alt="Schedule+ in 1994"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/scheduleplus.png" alt="Schedule+ in 1994"></p>
 
 <p>Schedule+ supported creating invites and had an integrated messaging function that worked off the Network Postoffice.
     Notably, these messages weren't showed in Mail at all, making meeting invites a bit haphazard. Other users'
     schedules could be shared and loaded off the postoffice, suitable for secretaries to be able to manage and
     manipulate their boss's schedule.</p>
 
-<p><img src="https://soylentnews.org/blob.pl?id=c97fa01c586d5192fabb02aeab4e2287" alt="Schedule+ ACLs"></p>
-
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/scheduleplus_acl.png" alt="Schedule+ ACLs"></p>
+g
 <p>For a product of this time, Schedule+ has a fairly elaborate access control function. I've heard rumors that
     Microsoft used Schedule+ pretty extensively in-house, so this feature probably existed to help prevent developers
     from deleting meetings they didn't want to attend.</p>
@@ -445,7 +447,7 @@ FATAL ERROR:  Attempt to crash System VM
 
 <h4>Remote Access</h4>
 
-<p><img src="https://soylentnews.org/blob.pl?id=2251692ee993564afdc6d2516eec48ad" alt="RAS"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/remote_access_service.png" alt="RAS"></p>
 
 <p>Remote Access is the only application I can't actually demostrate as it requires a working modem. In short, it let
     you dial into a LAN Manager, Windows NT, or Windows 95 server and run NetBIOS applications between the two machines.
@@ -454,7 +456,7 @@ FATAL ERROR:  Attempt to crash System VM
 
 <h4>Net Watcher</h4>
 
-<p><img src="https://soylentnews.org/blob.pl?id=687774973005697fc333ace3246e37d5" alt="NetWatcher UI"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/netwatcher.png" alt="NetWatcher UI"></p>
 
 <p>NetWatcher, as the name suggests, gave you a look at the network stack on your machine. It could show whoever was
     connected to your PC, as well any files they had an exclusive lock on. If enabled in the control panel, the Event
@@ -470,7 +472,7 @@ FATAL ERROR:  Attempt to crash System VM
 
 <h4>WinPopup</h4>
 
-<p><img src="https://soylentnews.org/blob.pl?id=7bf1d28eea82f99a4e4a21dff162ff53" alt="WinPopup"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/winpopup.png" alt="WinPopup"></p>
 
 <p>Ah, the great annoyance of the 90s and early 2000s. WinPopup is a simple broadcast message facility, that could send
     a message to a user, computer, or an entire workgroup all at once. This feature survived in one form or another
@@ -482,7 +484,7 @@ FATAL ERROR:  Attempt to crash System VM
 
 <h4>Chat</h4>
 
-<p><img src="https://soylentnews.org/blob.pl?id=b0f1c68cafa26736397003d0301e7751" alt="Chat"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/chat.png" alt="Chat"></p>
 
 <p>Chat on the other hand is a keyboard to keyboard chat application. It acts more like a TTY device or the old school
     UNIX talk application that keyboard input is relayed in real-time. Like other programs, it needs to be open to
@@ -490,7 +492,7 @@ FATAL ERROR:  Attempt to crash System VM
 
 <h4>WinMeter</h4>
 
-<p><img src="https://soylentnews.org/blob.pl?id=059712cf24862d622d84dbee516d771b" alt="WinMeter"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/winmeter.png" alt="WinMeter"></p>
 
 <p>WinMeter finally tops out our collection of Windows for Workgroups 3.11 applications with simple performance
     statistics.</p>
@@ -515,7 +517,7 @@ FATAL ERROR:  Attempt to crash System VM
 <p>I've got another topic in the works, so I'll leave you with this teaser screenshot to tide you over until the next
     time!</p>
 
-<p><img src="https://soylentnews.org/blob.pl?id=8ab1b83bb3b946a5e6352701c0d1c5d9" alt="NetWare MONITOR"></p>
+<p><img src="/images/articles/2020/exploring_windows_for_workgroups/netware_monitor.png" alt="NetWare MONITOR"></p>
 
 <p>73 de NCommander</p>
 
@@ -523,3 +525,6 @@ FATAL ERROR:  Attempt to crash System VM
     (not 3.11) actually has some notable changes. This is likely due to being based on the Microsoft Workgroup Add-on
     for Windows instead of the NT based Shoebill. I may come back to this topic and re-address it, especially if I can
     get my hands on the add-on.</p>
+
+<p><b>Note: This post originally appeared on <a href="https://soylentnews.org">SoylentNews</a> on <a
+            href="https://soylentnews.org/article.pl?sid=20/05/14/1731231">May 25th, 2020</a></b></p>

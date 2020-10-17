@@ -1,6 +1,6 @@
 ---
 title: "Examining Windows 1.0 HELLO.C - 35 Years of Backwards Compatibility"
-date: 2020-05-26T12:00:00-04:00
+date: 2020-05-18T12:00:00-04:00
 draft: false
 author: NCommander
 tags: [windows 1.0, retro-compile, retrocomputing, soylentnews repost]
@@ -66,7 +66,7 @@ int main() {
     these are incorrect. Once the correct runes are typed, SELECT formats the target drive, copies DOS, and finishes
     installation.</p>
 
-<p><img src="/images/2020/examining_windows_hello_world/dos_select_command.png" alt="DOS Select"></p>
+<p><img src="/images/articles/2020/examining_windows_hello_world/dos_select_command.png" alt="DOS Select"></p>
 
 <p>Without much fanfare, the first hurdle was crossed, and we're off to installing Windows.</p>
 
@@ -76,14 +76,14 @@ int main() {
     dedicated installer and a simple text-based interface. This bit of polish was likely due to the fact that most users
     would be expected to install Windows themselves instead of having it pre-installed.</p>
 
-<p><img src="/images/2020/examining_windows_hello_world/windows_1_setup.png" alt="Windows 1 SETUP"></p>
+<p><img src="/images/articles/2020/examining_windows_hello_world/windows_1_setup.png" alt="Windows 1 SETUP"></p>
 
 <p>Another interesting quirk was that Windows could be installed to a second floppy disk due to the rarity of hard
     drives of the era, something that we would see later with Microsoft C 4.0. Installation went (mostly) smoothly,
     although it took me two tries to get a working install due to a typo. Typing WIN brought me to the rather spartan
     interface of Windows 1.0.</p>
 
-<p><img src="/images/2020/examining_windows_hello_world/dos_executive.png" alt="DOS EXECUTIVE"></p>
+<p><img src="/images/articles/2020/examining_windows_hello_world/dos_executive.png" alt="DOS EXECUTIVE"></p>
 
 <p>Although functional, what was missing was mouse support. Due to its age, Windows predates the mouse as a standard
     piece of equipment and predates the PS/2 mouse protocol; only serial and bus mice were supported out of the box.
@@ -131,16 +131,16 @@ int main() {
     included applications. The most notable applications that were included are: NOTEPAD, PAINT, WRITE, and CARDFILE.
 </p>
 
-<p><img src="/images/2020/examining_windows_hello_world/write.png" alt="WRITE"></p>
+<p><img src="/images/articles/2020/examining_windows_hello_world/write.png" alt="WRITE"></p>
 
-<p><img src="/images/2020/examining_windows_hello_world/cardfile.png" alt="CARDFILE"></p>
+<p><img src="/images/articles/2020/examining_windows_hello_world/cardfile.png" alt="CARDFILE"></p>
 
 <p>While NOTEPAD is essentially unchanged from its modern version, Write could be best considered a stripped-down
     version of Word, and would remain a mainstay until Windows 95 where it was replaced with Wordpad. CARDFILE likewise
     was a digital Rolodex. CARDFILE remained part of the default install until Windows 3.1, and remained on the CD-ROM
     for 95, 98, and ME before disappearing entirely.</p>
 
-<p><img src="/images/2020/examining_windows_hello_world/paint.png" alt="PAINT"></p>
+<p><img src="/images/articles/2020/examining_windows_hello_world/paint.png" alt="PAINT"></p>
 
 <p>PAINT, on the other hand, is entirely different from the Paintbrush application that would become a mainstay.
     Specifically, it's limited to monochrome graphics, and files are saved in MSP format. Part of this is due to
@@ -153,7 +153,7 @@ int main() {
     had DOS and Windows 1.0 versions. ZSoft Paintbrush was very similar to what shipped in Windows 3.0 and used a bit of
     technical trickery to take advantage of the full EGA palette.</p>
 
-<p><img src="/images/2020/examining_windows_hello_world/paintbrush.png" alt="PAINTBRUSH"></p>
+<p><img src="/images/articles/2020/examining_windows_hello_world/paintbrush.png" alt="PAINTBRUSH"></p>
 
 <p>With that quick look completed, let's go back to actually getting to HELLO.C, and that involved getting the SDK
     installed.</p>
@@ -195,7 +195,7 @@ int main() {
     README file was on Disk 2, and not Disk 1. This was confirmed not to be a labeling error as the script immediately
     asks for Disk 1 to be inserted.</p>
 
-<p><img src="/images/2020/examining_windows_hello_world/sdk_installation.png" alt="SDK Installation"></p>
+<p><img src="/images/articles/2020/examining_windows_hello_world/sdk_installation.png" alt="SDK Installation"></p>
 
 <p>The install script copies files from four of the seven disks before returning to a command line. Disk 5 contains the
     debug build of Windows, which are roughly equivalent to checked builds of modern Windows. Disk 6 and 7 have sample
@@ -203,9 +203,9 @@ int main() {
 
 <p>With the final hurdle passed, it wasn't too hard to get to compiled HELLO.EXE.</p>
 
-<p><img src="/images/2020/examining_windows_hello_world/hello_compile_1.png" alt="HELLO compilation 1"></p>
+<p><img src="/images/articles/2020/examining_windows_hello_world/hello_compile_1.png" alt="HELLO compilation 1"></p>
 
-<p><img src="/images/2020/examining_windows_hello_world/hello_compile_2.png" alt="HELLO compilation 2"></p>
+<p><img src="/images/articles/2020/examining_windows_hello_world/hello_compile_2.png" alt="HELLO compilation 2"></p>
 
 <h2>Dissecting HELLO.C</h2>
 
@@ -325,7 +325,7 @@ int main() {
     memories in an attempt to shake loose bugs. This is similar to more modern-day tools like valgrind on Linux, or
     Microsoft's Application Testing tools.</p>
 
-<p><img src="/images/2020/examining_windows_hello_world/heapwalk_shaker.png"
+<p><img src="/images/articles/2020/examining_windows_hello_world/heapwalk_shaker.png"
         alt="HEAPWALK and SHAKER side by side"></p>
 
 <h4>MakeProcInstance</h4>
@@ -394,24 +394,24 @@ int main() {
     CARDFILE and FONTTEST were copied with it. Upon loading, Windows did not disappoint throwing up a compatibility
     warning right at the get-go.</p>
 
-<p><img src="/images/2020/examining_windows_hello_world/compatibility_warning.png"
+<p><img src="/images/articles/2020/examining_windows_hello_world/compatibility_warning.png"
         alt="Windows 3.1 Compatibility Warning"></p>
 
 <p>Accepting the warning showing that all three applications ran fine, albeit it with a broken resolution due to 0,0
     being passed into CreateWindow().</p>
 
-<p><img src="/images/2020/examining_windows_hello_world/hello_on_31.png" alt="HELLO on Windows 3.1"></p>
+<p><img src="/images/articles/2020/examining_windows_hello_world/hello_on_31.png" alt="HELLO on Windows 3.1"></p>
 
 <p>However, there's a bit more to explore here. The Windows 3.1 SDK included a utility known as MARK. MARK was used, as
     the name suggests, to mark legacy applications as being OK to run under Protected Mode. It also could enable the use
     of TrueType fonts, a feature introduced back in Windows 3.0.</p>
 
-<p><img src="/images/2020/examining_windows_hello_world/marking_hello.png" alt="MARKING"></p>
+<p><img src="/images/articles/2020/examining_windows_hello_world/marking_hello.png" alt="MARKING"></p>
 
 <p>The effect is clear, HELLO.EXE now renders in TrueType fonts. The reason TrueType fonts are not immediately enabled
     can be see in FONTTEST, where the system typeface now overruns several dialog fields.</p>
 
-<p><img src="/images/2020/examining_windows_hello_world/truetype_hello.png" alt="TrueType HELLO"></p>
+<p><img src="/images/articles/2020/examining_windows_hello_world/truetype_hello.png" alt="TrueType HELLO"></p>
 
 <p>The question now was, can we go further?</p>
 
@@ -426,7 +426,7 @@ int main() {
     install NTVDM. After letting NTVDM install, a second attempt shows, yes, it is possible to run Windows 1.x
     applications on Windows 10.</p>
 
-<p><img src="/images/2020/examining_windows_hello_world/hello_win10.png" alt="HELLO on Windows 10" width="800">
+<p><img src="/images/articles/2020/examining_windows_hello_world/hello_win10.png" alt="HELLO on Windows 10" width="800">
 </p>
 
 <p>FONTTEST also worked without issue, although the TrueType fonts from Windows 3.1 had disappeared. CARDFILE loaded but
@@ -434,7 +434,7 @@ int main() {
     support for working with these ancient binaries, although the story of why CARDFILE dies will have to wait for
     another day.</p>
 
-<p><img src="/images/2020/examining_windows_hello_world/windbg.png" alt="windbg" width="800"></p>
+<p><img src="/images/articles/2020/examining_windows_hello_world/windbg.png" alt="windbg" width="800"></p>
 
 <h4>In Closing ...</h4>
 
@@ -447,3 +447,6 @@ int main() {
 <p>Until next time,</p>
 
 <p>73 de NCommander</p>
+
+<p><b>Note: This post originally appeared on <a href="https://soylentnews.org">SoylentNews</a> on <a
+    href="https://soylentnews.org/article.pl?sid=20/05/10/1753203">May 18th, 2020</a></b></p>
