@@ -1,0 +1,684 @@
+---
+title: "The Novell NetWare Experience"
+date: 2020-06-01T12:00:00-04:00
+draft: false
+author: NCommander
+tags: [netware, ipx, first impressions, odi client, soylentnews repost]
+summary: "On what is becoming a running theme here on SoylentNews, we're reliving the early 90s, and picking up right
+where I
+left off from Windows for Workgroups, it was time to look at the 800-pound gorilla: Novell NetWare.\n"
+
+---
+
+<p>On what is becoming a running theme here on SoylentNews, we're reliving the early 90s, and picking up right where I
+    left off from <a href="/articles/2020/05/exploring-windows-for-workgroups-3.11-early-90s-networking/">Windows for
+        Workgroups</a>, it was time to look at the 800-pound gorilla: Novell NetWare.</p>
+
+<p>Unlike early Mac, UNIX and Windows, I didn't actually have any personal experience with NetWare back in the day.
+    Instead, my hands were first guided on <a href="https://www.twitch.tv/defcon201live">a stream of my weekly show,
+        HACK-ALT-NCOMMANDER, </a> hosted as part of <a href="http://defcon201.org/">DEFCON 201</a>, combined with a
+    binge reading marathon of some very hefty manuals. In that vein, this is more of my impressions of what NetWare user
+    and administration is like, especially compared to the tools of the day.</p>
+
+<p>Ultimately, I found NetWare a very strange experience, and there were a lot of pluses and minuses to cover, so as
+    usual, here's the tl;dr video summary, followed by more in-depth write-up.</p>
+
+<p><iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/jbvWQu4k4iA" frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe></a>
+</p>
+
+<h3>The Network Operating System</h3>
+<p>In the simplest terms possible, NetWare was a dedicated network operating system. It was designed around fast and
+    reliable network operations at the expense of almost everything else. Novell had invested massive amounts of
+    research in figuring out how to do fast I/O and minimizing any delays from hardware related sources. The end result
+    was a very lean system that remained stable and performant with a large number of clients attached. As networking
+    was Novell's bread and butter, NetWare had excellent support for everything: clients were available for DOS,
+    Windows, UNIX, Macintosh, OS/2 and probably other platforms I've never even heard of.</p>
+
+<p>The early history of NetWare is very muddled, and pre-2.0 versions have been lost to time. This compounded with poor
+    documentation has made it very difficult to trace the early history of the product. However, while NetWare was not
+    the first (or only) network product for IBM PCs, it quickly became the largest, displacing IBM's PC Network, and
+    laughed at Microsoft's LAN Manager, and IBM OS/2 LAN Server.</p>
+
+<p>While NetWare did compete on UNIX, Sun had already gotten their foot in the door by porting NFS and making it the
+    de-facto solution for all UNIXs of the era, as well as Linux. Meanwhile, Apple held onto AppleTalk which itself
+    survived well into the early 2000s when NetWare had already disappeared into the aether. The explosion of Wintel PCs
+    throughout the 90s had given NetWare a market position that should have been very difficult to dislodge.</p>
+
+<p>The full story of NetWare's fall from grace is a story for another time, but I do want to go into the more technical
+    aspects that were both the boon and bane of NetWare. Much of NetWare's success can be attributed to its own IPX
+    protocol which made networking plug and play and drastically lowered latencies compared to NetBIOS or even TCP/IP.
+</p>
+
+<h3>Internetwork Packet eXchage (IPX)</h3>
+
+<p>While NetWare itself doesn't pre-date TCP/IP, like many products of the era it used its own routing protocol known as
+    IPX. IPX wasn't specific to NetWare, and for those of us who remember early LAN parties, IPX powered many Doom, Duke
+    Nukem 3D, and StarCraft multiplayer matches. IPX itself isn't, conceptually, that different from TCP/IP. Each host
+    is given a 32-bit network identifier and a 48-bit host identifier. In absence of a router, link-local networking was
+    available through the pseudo-zero-net.</p>
+
+<p>In truth, IPX actually resembles IPv6 much more than IPv4. I wouldn't be surprised if a lot of IPv6's design
+    decisions were modeled around IPX, such as the fact IPv6 uses a 48-bit network prefix, a 16-bit subnet prefix, and a
+    64-bit host network adapter. Furthermore, unlike IPv4, IPX is entirely self-configuring, and routing information is
+    broadcast as needed (once again, similar to IPv6's Stateless Address Autoconfiguration (<a
+        href="https://tools.ietf.org/html/rfc4862">SLAAC</a>). There's no direct equivalent of DHCP for IPX.</p>
+
+<p>NetWare servers &mdash; as well as most vintage networking equipment &mdash; also natively supported IPX routing
+    which was essentially a plug and play affair.</p>
+
+<p>That's not to say IPX is perfect. One major pain point is that IPX comes in four different variants, raw, LLC, SNAP,
+    and what Novell calls ETHERNET_II. This is due to the fact that IPX was used heavily on non-Ethernet networks; the
+    protocol itself can change depending on what physical hardware it's running on. For example, it's not possible to
+    use Ethernet frame routing over Token Ring networks. All four variants are incompatible with each other and a
+    misconfiguration means hosts will not see each other on the network. This is in contrast to TCP/IP which was
+    specifically designed to be independent of the network layers below it.</p>
+
+<p>Despite this and compared to TCP/IP, IPX was a breeze to setup and administrate. Neither DHCP nor RFC1918 address
+    spaces (that is 192.168.0.0/16, 10.0.0.0/8 and 172.16.0.0/20) existed at the time. That meant for proper TCP/IP
+    deployment, an allocation had to be requested from your local Regional Internet Registry such as ARIN. Adding salt
+    in the wound, TCP/IP was still classful at the time, meaning network blocks were only available in /8, /16, and /24
+    sizes.</p>
+
+<p>I disagree with the contention that Novell's slow adoption of TCP/IP was part of the reason why they fell into
+    irrelevance. TCP/IP has unfortunate characteristics when dealing with non-switched networks which made it
+    undesirable for LAN usage. TCP/IP has built-in rate limiting designed to handle packet loss issues; the idea is that
+    if packets are being lost in flight, the link is saturated and the sender must slow down. This is part of the TCP/IP
+    specification.</p>
+
+<p>On packet-switched networks and fixed links that made up ARPANET, this was a desirable property. Token Ring and
+    ARCnet also provided full switching for local offices. However, while ARCnet managed to carve a niche in SCADA
+    systems, Token Ring priced itself out of the market and was already vanishing in favor of Ethernet. This lead to a
+    rather unfortunate mess. At the time, thicknet 10BASE2 and Ethernet hubs dominated the low-cost market. Up until
+    switched Ethernet and 10BASET became commonplace, packet collisions were common. This combined with TCP/IP rate
+    limiting meant that TCP/IP would run much slower than it otherwise would.</p>
+
+<p>In contrast, AppleTalk survived well into the mid-2000s before it was given the "Old Yeller" treatment and DECnet is
+    still commonly used with OpenVMS. While supporting multiple Layer 3 routing protocols can be an additional burden,
+    it's not a show stopper. The problem is that IPX was the one real killer feature of NetWare, and without it, NetWare
+    was simply more expensive, and difficult to administer.</p>
+
+<p>Certain design decisions within NetWare would also make it an evolutionary dead end.</p>
+
+<h3>Ring 0 and NLMs</h3>
+
+<p>One of NetWare's notable features is that it's one of the few products that actually took advantage of the 286's
+    protected mode and got actual speed and usability improvements out of it without concern for legacy backwards
+    compatibility. The catch was that Novell took the protected part of protected mode out to do so.</p>
+
+<p>To prevent this article from becoming yet <a
+        href="/articles/2020/05/examining-windows-1.0-hello.c-35-years-of-backwards-compatibility/">another</a> <a
+        href="/articles/2016/08/retro-malware-dos-tsrs-interrupt-handlers-and-far-calls-part-2/">rant</a> about the 286,
+    I'm going to
+    summarize what ring 0 means. In modern operating systems, user applications are separated from the low-level guts of
+    the operating system's core code, or OS kernel. On the 8086, no such separation existed, and all programs have full
+    and unrestricted access to hardware and memory. On the 286 and later, Intel added the concept of rings, which divide
+    applications in groups. The kernel exists in ring 0, and user applications are in ring 3. Rings 1-2 were rarely used
+    (with OS/2 being the one notable exception) to provide finer control.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/processor_rings.png" alt="Intel Processor Rings"></p>
+
+<p><b>Aside:</b> Rings were informally scrapped with 64-bit architectures. While they still "exist" in the GDT <a
+        href="https://en.wikipedia.org/wiki/Global_Descriptor_Table">Global Descriptor Table</a>, the removal of
+    segmentation and the addition of SYSENTER means that only ring 0 and 3 can be used in practice.</p>
+
+<p>I'm going to gloss over the details here, but the very short version is that there are two ways to switch rings in
+    protected mode: call gates and interrupt vectors. Both cause a context switch and have a fairly high-performance
+    penalty associated with it. Novell's solution was instead to just not bother. All code within a NetWare server ran
+    in Ring 0, and essentially ignored any security and reliability features offered by the processor.</p>
+
+<p>Both drivers and add-on software took the form of NetWare Loadable Modules, or NLMs. These are effectively kernel
+    modules that can be dynamically loaded and unloaded. To further aid performance, cooperative multitasking was used
+    to prevent delays inherent in modern-day pre-emptive multitasking. That meant a misbehaving app could not only lock
+    a NetWare server up, it could also trash the hardware on the way out.</p>
+
+<p>What this meant in practice is that NetWare had best the performance possible from a 32-bit processor combined with
+    the stability and reliability of Windows 3.1.</p>
+
+<p>If this is sounding like a nightmare, it's not <b>quite</b> as bad as it sounds. Novell's engineers were quite good
+    at their job, and I was very impressed at the performance and stability of NetWare's file and print servers. The
+    problem was that, for reasons that will become clear, it wasn't uncommon to have a fair number of add-on NLMs to
+    ease system administration or provide services like BTrieve SQL server. One bug in these NLMs could <a
+        href="https://en.wikipedia.org/wiki/Abnormal_end">ABEND</a> a server, or simply cause a deadlock.</p>
+
+<p>Later versions of NetWare did provide some isolation for misbehaving NLMs, but the system as a whole remained
+    cooperatively multitasked. This is in stark contrast to Windows NT where a misbehaving application wouldn't bring
+    the system crashing down.</p>
+
+<p><b>NOTE:</b> Since it came up in the previous article, I did attach a debugger to NetWare and dump the processor's
+    GDT, you can see there are no Ring 3 segments:</p>
+
+<p>
+<pre>VBoxDbg&gt; dg
+0000 DataRW Bas=00000000 Lim=fffff000 DPL=0 P NA G BIG AVL=0 L=0
+0008 CodeER Bas=00000000 Lim=00fff000 DPL=0 P A G BIG AVL=0 L=0
+0010 DataRW Bas=00000000 Lim=00fff000 DPL=0 P A G BIG AVL=0 L=0
+0018 CodeER Bas=0001b9e0 Lim=0000ffff DPL=0 P A AVL=0 L=0
+0020 DataRW Bas=0001b9e0 Lim=0000ffff DPL=0 P A AVL=0 L=0
+0028 VERR_INVALID_SELECTOR
+VBoxDbg&gt; </pre>
+
+<h3>LOAD INSTALL</h3>
+
+<p>NetWare 3.12 was contemporary with Windows NT 3.1 as well as Windows for Workgroups. While version 4 had also shipped
+    at this time and introduced Novell's Directory Service, I felt 3.12 would capture NetWare at its zenith before
+    Windows NT would eat its lunch. At a minimum, it would represent the mountain Microsoft would have to scale to
+    compete.</p>
+
+<p>3.12 was available both as a set of both floppy disks and in CD-ROM form. The first disk, System_1 was also
+    personalized to show your license of NetWare, and the disks are bootable, loading up DR-DOS 5 without issue.
+    NetWare's first real quirk comes from the fact that it needs DOS as a bootloader. Early versions could either
+    replace DOS in a dedicated fashion with a cold boot loader or co-exist with both running side by side. NetWare 3 and
+    later instead used DOS as a bootloader, and had limited access to DOS devices. In what is becoming a now-familiar
+    sentence, MS-DOS 6 was installed to a 32 MiB partition, with the rest of the 4 GiB drive set aside for NetWare.</p>
+
+<p>As I had no desire to feed a large number of floppy disks, OAKCDROM.SYS was added to DOS, and installation was kicked
+    off from the CD.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/oakcdrom.png" alt="OAKCDROM.SYS"></p>
+
+<p>The initial installation is very bare bones, with the only network-related question coming in the form of selecting
+    the server name and internal IPX network number</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/ipx_setup.png" alt="IPX SETUP"></p>
+
+<p>After providing the System_1 disk, SETUP kicks off NetWare, and drops you at the server console after offering to
+    modify AUTOEXEC.BAT to automatically start NetWare server. At this point, installation continues from within NetWare
+    itself.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/" alt="NetWare Console"></p>
+
+<p>The first step is loading a device driver for the hard disks. The installation manual (and media) comes with an
+    extremely large set of drivers, including ones for Microchannel, and EDSI <a
+        href="https://en.wikipedia.org/wiki/Enhanced_Small_Disk_Interface">Enhanced Small Disk Interface</a>) disks,
+    technologies that have long disappeared. In this case, LOAD ISADRIVE is the correct driver as it's used for
+    AT-compatible hard drives. The next step is then finding a way to load the NetWare system files. LOAD is NetWare's
+    command for installing a NetWare Loadable Module, so it's used for both drivers and applications.</p>
+
+<p>The easiest option (and what I went with) was simply letting NetWare use the CD-ROM driver in DOS. This doesn't
+    require any configuration: NetWare itself loads above the 1 MiB memory line, and DOS itself is still resident in
+    conventional memory including any device drivers loaded. Other options include: LOAD CDROM, loading the files via
+    network, or loading from a DOS partition.</p>
+
+<p>LOAD INSTALL takes over from here, and is one of the few graphical applications on the server console. Partitioning
+    is straight forward, and RAID can also be configured. Unlike DOS, NetWare is relatively happy with larger disks,
+    however the ISADISK driver refused to touch a hard drive larger than 4 GiB, which isn't uncommon for the era.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/disk_partitioning.png" alt="Disk Partitioning"></p>
+
+<p>After the partition is mounted, volumes must be created. This is conceptually similar to BSD disklabels, or <a
+        href="https://en.wikipedia.org/wiki/Logical_Volume_Manager_(Linux)">LVM</a> logical partitions. The main NetWare
+    partition is SYS: which holds the core system files, and is also the default directory for user home folders. One
+    quirk I ran into was that volumes are not automatically mounted upon creation, but this was otherwise
+    straightforward.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/mount_sys.png" alt="MOUNT SYS"></p>
+
+<p>Finally, the installation is finished with "Copy Public and System Files". This option isn't actually specific to
+    NetWare's installation as both add-on software and patches could use this mechanism. Typing in
+    "d:\netware.312\server" set NetWare away from copying files from the CD. It should be noted this process was
+    abnormally slow and took several minutes running in a VM to complete. This is likely due to the fact that NetWare
+    must suspend itself, load data from DOS through OAKCDROM, re-enter protected mode, and then continue.</p>
+
+<p><b>NOTE:</b> I briefly looked with VirtualBox's debugger to see how this worked. The very poor speed made me wonder
+    if they were doing some sort of software trickery like running DOS on OS/2 on a 286, or using Virtual 8086 mode. My
+    guess is the former; VirtualBox says that no Task Select Segment is loaded, likely due to no ring 3 code, although I
+    can't definitively say this isn't using Virtual 8086 mode somewhere.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/file_installation.png" alt="FILE INSTALLATION"></p>
+
+<p>Once file copying was finally finished, the last ugly truth comes up. Administrating NetWare is impossible without a
+    second machine, and this also applied to the patching process. This is especially egregious as older "Nondedicated"
+    versions of NetWare could run the DOS based administration tools on the same machine. That meant the network had to
+    come up to continue.</p>
+
+<h3>A PCNet Experience</h3>
+
+<p>NetWare's support for NICs, as you may expect, is excellent with support for Token Ring, ARCnet, and many Ethernet
+    adapters. Novell also had their own line of network cards, the NE1000 and NE2000 which were so successful that the
+    NE2000 became a <em>de facto</em> standard for 16-bit computers. VirtualBox also has the ability to emulate an
+    ISA-based NIC via a poorly-documented advanced option, but I opted to go with the more standard PCI AMD PCNet device
+    offered in the GUI.</p>
+
+<p>Having been burned with unstable NE2K emulation under QEMU, I really didn't want to risk having undocumented IRQ
+    conflicts, so this was the path of least resistance. AMD did publish loadable drivers for NetWare 4. However, the
+    ODI33G patch can allow these to be used under NetWare 3.12. Driver installation was slightly odd and in hindsight,
+    foreshadowed the lengthy patching process.</p>
+
+<p>The first step was simply returning to DOS. This is done by DOWN and followed by EXIT. ODI33G was first installed.
+    This took the form of a self-extracting ARJ archive, and files from that archive must replace basic files in the
+    C:\server.312. It's pretty clear that unless a system administrator was diligent, it would be exceptionally easy to
+    accidentally downgrade server components during an "upgrade".</p>
+
+<p>Following that, the PCNTNW driver was loaded across and NetWare restarted. Then came the more difficult process of
+    configuring the network. NetWare is controlled by two main startup files: STARTUP.NCF, and AUTOEXEC.NCF. STARTUP is
+    used for any "early initialization" steps (such as in my case LOAD ISADISK) and is executed immediately during the
+    DOS startup phase. AUTOEXEC.NCF meanwhile is loaded when the system is fully up and running. It's here where
+    networking is configured.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/autoexec_ncf.png" alt="AUTOEXEC.NCF"></p>
+
+<p>The first two lines of the file were added during server installation and set the server name and loopback IPX
+    network number. Below that, I needed to load the msm31x, or the "Media Support Module" as it's called in the
+    documentation. Then I could load the PCNTNW driver. Both these drivers exist on the DOS partition, and DOS-style
+    file paths are used to access them. The next step is binding.</p>
+
+<p>Although Novell primarily used IPX protocols for file sharing and printing, NetWare did support others; specifically
+    TCP/IP was included in this version, as well as RPL for netbooting in the pre-PXE era. Add-on software also provided
+    support for AppleTalk and even NFS based file sharing. Network protocols are attached to interface cards via "BIND".
+    In that case, the frame type and network number must also be entered. Restarting NetWare showed that the PCNTNW
+    driver was loaded and initialized. Further, <a href="https://www.wireshark.org/">Wireshark</a> was showing IPX
+    traffic over the network!</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/network_driver.png" alt="NetWare booted with drivers"></p>
+
+<p>At this point, we can LOAD MONITOR, and bring up the most common screenshot seen of NetWare systems (shown below).
+    Next, it was time to jump into the pit of the NetWare Requester for DOS.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/load_monitor.png" alt="LOAD MONITOR"></p>
+
+<p>As an aside, there is one more step to installation that I've omitted. NetWare did support UNIX, Mac, and OS/2
+    clients. Each of these systems had add-in support modules that had to be loaded server-side. For example, Macintosh
+    requires support for storing resource and data forks, while OS/2 could use long filename and extended attribute
+    bits. For this article (and video), I didn't bother installing these as I'm only going to use DOS-based clients. If
+    we re-visit NetWare, I'll document the experience then.</p>
+
+<h3><img src="/images/articles/2020/novell_netware_experience/nwclient_install.png" alt="NWClient Install"></h3>
+
+<p>I'd like to say that compared to the server setup experience, the client was better. It wasn't, although this wasn't
+    entirely Novell's fault. Included with the server discs are two client installers, one for both DOS and Windows 3.1,
+    and the other for OS/2 with NWClient 3.12. Our client machine got the DOS 6 treatment followed by Windows 3.1 (not
+    Windows for Workgroups) with a dash of OAKCDROM for seasoning. Once again, there was a long list of drivers, and
+    frustratingly, no AMD PCNet PCI card one. More annoyingly, I have a PCNet driver from AMD but the driver disk wasn't
+    recognized by NWClient.</p>
+
+<p>The files I have from AMD don't indicate a version number, but the example net.cfg suggests that this driver was for
+    a 16-bit NetWare 4 client. One interesting design choice of these older NetWare <a
+        href="https://en.wikipedia.org/wiki/Open_Data-Link_Interface">ODI</a> clients is that they're extremely modular
+    in nature and have exceptionally low memory requirements. ODI is a fairly lengthy topic in and of itself, but the
+    short story is that instead of one giant monolithic blob, each part of the network stack was separated into add-on
+    layers. It is very reminiscent of the Winsock API and I wouldn't be surprised if some Winsock aspects were modeled
+    around it.</p>
+
+<p>Since ODI was supported for a long time, relatively stable, and &mdash; most importantly &mdash; highly modular,
+    there was a decent chance I could get this to work.</p>
+
+<p>On the AMD disk I had was a replacement LSL (Link Support Layer) module, and a startnet.bat which would load the
+    basic drivers just fine. As I found out later, if I ran startnet.bat from the disk, NWClient's installer would see
+    it, and write net.cfg for me properly. Instead, I ultimately ended up monkeying for about half an hour before
+    finding the right set of client switches and options, and AUTOEXEC.BAT lines to let this work.</p>
+
+<p>Wireshark saw IPX announce and NCP handshakes go which told me I was going in the right direction, but I got slightly
+    stumped. There were no client utilities on the disk and I knew from the documentation that I was looking for
+    LOGIN.EXE. What actually happens is a little more interesting.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/fileman_nwclient.png" alt="fileman nwclient"></p>
+
+<p>NetWare servers announce their presence on the network via Service Announcement Protocols or SAP, which include their
+    network number. The client can then use that information to determine the closest NetWare server and use that to
+    access the SYS:LOGIN share which has LOGIN.EXE. As it turned out, the moment I got the network client running,
+    NetWare announced its IPX address, and SYS:LOGIN was silently mounted to F:</p>
+
+<p>This is part of the plug and play nature of IPX, but was also something of a double-edged sword. On the upside,
+    patches to NetWare client software automatically got delivered to users as most of the brains were on the NetWare
+    server &mdash; not the client. The first downside though is as far as I can tell, there's no way to force the client
+    requester to go to a specific NetWare server. I'm also not entirely sure how this mechanism worked with OS/2. There
+    is a LOGIN/OS2 folder with its own version of LOGIN, and reading suggests THAT folder gets mounted to F: instead of
+    the general public one.</p>
+
+<p>This likely wasn't a big deal in NetWare 2.x and 3.x, but I can see a potential for problems in NetWare 4 which
+    replaced bindery with NDS. This was also a problem for netbooting clients as NetWare RPL looks for SYS:PUBLIC to
+    find NET$OS.SYS. The documentation has a fairly large section documenting nearest server and how to reconfigure
+    NetWare, but is maddeningly vague on detailing the behavior.</p>
+
+<p>Regardless, with LOGIN.EXE found, I could login as SUPERVISOR, and enter a world of hurt and MAP SYS:</p>
+
+<p>One final bit I found humorous though, was that as with most DOS software, NWClient offers to backup AUTOEXEC.BAT
+    before modifying it. The original version is written as AUTOEXEC.BNW, which either stands for "Before NetWare", or
+    "Brave New World". I like to think it's the latter and I am John trying to relate to a society that no longer
+    exists.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/login_supervisor.png" alt="LOGIN SUPERVISOR"></p>
+
+<p>With our entry into the new world and its strange utilities, it was now time to get NetWare to learn the fact that we
+    can no longer party like it's 1999.</p>
+
+<h3>The Bumpy Road to Y2K Compliance</h3>
+
+<p>Up to this point I've glossed over <b>why</b> I needed a client system to patch the server. The simple reason is that
+    NetWare doesn't have any tools to manipulate files on its own NetWare FileSystem (NWFS) partitions. Aside from the
+    EDIT NLM, the disk might as well not exist as far as the server console is concerned. A large number of add-on NLMs
+    were available to fix this, but Novell didn't support these out of the box. NetWare's own documentation specifically
+    states that patch files needed to be loaded to SYS: from a client partition.</p>
+
+<p>Supposedly, it is possible to load NLMs from the DOS boot partition, but I couldn't get this to work properly.
+    Another option would have been to use Copy System and Public from INSTALL, but for the sake of not "rat holing"
+    myself, I stayed with what Novell's READMEs said to do. Not that they were super helpful. What I had was a large
+    number of patch files, and no clear order to install. For example, the LIBC upgrade said that it should only be used
+    with some patch revisions and not others.</p>
+
+<p>Ultimately (through some trial and error) I discovered that to fix the Y2K problems I was having on the server, I
+    needed the base PTD312 patch, followed by the Y2K patch. The other patch files handled bug fixes in CDROM.NLM and
+    Printer Services, which I skipped as I didn't need either of them. Compounding the pain is that NetWare patches have
+    no uniform installation process. Some simply replace files, others include a PATCH NLM, and some require going into
+    DOS on the server to perform surgery.</p>
+
+<p>Starting with PTD312, the patch directory was extracted from its archive and XCOPY-ed to the SYS partition. Then I
+    needed to LOAD PATCH312 on the console which updated and installed all the necessary bits.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/ptd312_nlm.png" alt="PTD312.NLM"></img></p>
+
+<p>The Y2K patch was much messier. Instead of having an installation NLM, the replacement patches were copied to SYS,
+    and then the server restarted. However, the date still came up as 1920. Careful reading made me realize I skipped a
+    step.</p>
+
+<p>NetWare's kernel exists in the form of server.exe, and consists of both a loader and the NetWare kernel wrapped
+    together. The Y2K patch requires the loader component to be replaced. To actually <em>do</em> this, I had to copy
+    the replacement LOADER.EXE to a floppy disk and then use the Loader SWAP (LSWAP) utility to write a new server.exe.
+    Having climbed the mountain, NetWare finally recognized what century we're in.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/lswap.png" alt="LSWAP"></p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/2020_boot_date.png" alt="2020 boot date"></p>
+
+<p>Sad to say, this was far more painful than it really needed to be. That also would prove to be a wonderful
+    foreshadowing of what the NetWare experience was actually like.</p>
+
+<h3>The User Experience</h3>
+
+<p>Things continued to go downhill. By default, the rest of NetWare's management utilities are mounted to the Z:\PUBLIC
+    drive. Notably, this isn't added to the PATH so you need to switch to that directory manually if no additional setup
+    is done. File sharing can be managed either through the command line's MAP and ATTACH utilities or through the
+    graphical SESSION NWClient for Windows. SESSION suffers from poor user experience. NetWare is rather consistent in
+    the fact that its user interfaces are extremely <i>inconsistent</i>. For example, the UI doesn't note that the
+    insert and delete keys are used to add new mount points. Furthermore, NetWare presents no graphical viewer for
+    shares or available. Instead, a user must write a path like SERVER_NAME\VOLUME:PATH_TO_DIR.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/session.png" alt="SESSION"></p>
+
+<p>To actually find mountable directories, NDIR and FILER are available. FILER is both a user and administrative tool as
+    it's the only graphical interface that allows for easy viewing of access permissions and browsing of remote servers.
+    One can't, however, actually mount or attach drives directly with FILER. On the other hand, FILER could also be used
+    to view and manage Macintosh and UNIX files.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/filer.png" alt="FILER"></p>
+
+<p>Once a directory is mapped to a drive letter, it works like any normal DOS share. The performance was excellent and I
+    didn't have any stutters or stalls as I did with Windows for Workgroups. This is likely due to the low overhead of
+    IPX and the Network Control Protocol that NetWare uses for file management. Printers are manageable through the
+    PCONSOLE command and are mapped to local LPT ports.</p>
+
+<p>In theory, most of the terribleness of these utilities was supposed to be mitigated by the fact that the network
+    administrator can set login scripts to automatically setup drive mappings. In theory, you'd simply LOGIN and go.
+    Login scripts are marred, however, by the fact that they execute as part of LOGIN and not "in the context of
+    COMMAND.COM, which means that they're limited to whatever functionality Novell provided.</p>
+
+<p>While that may or may not have been the case, Novell was seemingly aware how bad this situation <i>actually</i> was
+    and a Windows 3.1 application for share management was provided in the box. Unfortunately, I'm not actually sure I
+    can call it an 'improvement'.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/nwclient_windows.png" alt="NWClient Windows"></p>
+
+<p>The first stumbling block is that logging in to and out of the NetWare server is not directly possible in the
+    NWClient/Windows. You're expected to do so from DOS, and I only saw login prompts show up during resuming drive
+    shares. That of course leads us into the second problem. The Windows client has the ability to make shares
+    "permanent" which automatically connects and disconnects to them. However this functionality is entirely
+    disconnected from NetWare logins. Instead, NetWare simply assumes your computer has one user and it was trivial to
+    make NetWare try to mount folders I didn't have permissions for.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/resuming_connections.png" alt="Resuming Connections"></p>
+
+<p>This is exceptionally ugly. Although Windows for Workgroups 3.11 had no real concept of a user, permanent shares were
+    still stored independently through a pseudo-login prompt shown at startup. This also remained true through the 9x
+    series of Windows. Then there is the very strong disconnect between the DOS and Windows worlds going on which is a
+    bit harder to explain.</p>
+
+<p>Back in the Windows 3.1 days, it wasn't uncommon to switch back and forth from Windows to DOS. While DOS applications
+    could be run within Windows, it was also common to use programs like WordPerfect from DOS. This is especially
+    important because a lot of DOS add-on software for WordPerfect and other word processors worked in the form of TSRs
+    which hooked the original application &mdash; that wouldn't work while Windows was open. Reference Manager for
+    WordPerfect was one such example I specifically remember.</p>
+
+<p>NetWare client for DOS essentially assumed that your network administrator would handle all the hard parts of
+    handling network MAPs for you. NetWare for Windows meanwhile made it easy for end-users to manage this themselves.
+    The problem is these two environments don't talk to each other. Persistent shares set in Windows are not
+    automatically loaded on DOS startup. Instead one needs to take a trip into Windows, and then quit back to DOS to
+    have those shares actually become available.</p>
+
+<p>The practical upshot is that I can easily see a world where a user had to start Windows to simply quit to DOS. End
+    users couldn't manage their own login scripts, so it was either use the graphical Windows client, or write your own
+    batch shell scripts to run the necessary MAP commands. This is an utter mess to say the least and I can only assume
+    the same held true on Mac and OS/2 clients.</p>
+
+<p>The next oddity I found is that NetWare installs its own Winsock implementation. That, in and of itself, is not that
+    unusual. As I <a href="https://soylentnews.org/article.pl?sid=20/05/14/1731231">previously mentioned</a>, Microsoft
+    originally left it to third-party developers to write Windows Sockets implementations before it released Shoebill as
+    part of Windows for Workgroups 3.11. NWClient showed up as version 4, likely due to the updated NIC components I had
+    to add for PCNTNW support. The Network control panel icon also reappears, although it just launches the
+    configuration page from NetWare Tools for Windows.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/windows_setup.png" alt="Windows SETUP"></p>
+
+<p>What makes it strange is that there appears to be absolutely no support for TCP/IP here. While Windows for Workgroups
+    didn't <b>ship</b> with TCP/IP, it was available as a free add-on. Other Winsock implementations I've seen such as
+    DEC PATHWORKS included TCP/IP in addition to their own protocols. That meant NetWare Tools for Windows was
+    inherently incompatible with the Internet. It might also be possible to install a TCP/IP add-on into the NWClient,
+    but this wasn't available (or even confirmed to exist). Some early comments on the video said that major NetWare
+    users had never seen the Windows client prior to Windows 95, and I can't help but think this was the reason.</p>
+
+<p>This is also damning based on the fact that NetWare server 3.12 supported TCP/IP for NLMs!</p>
+
+<p>To sum up, NetWare Client Tools for Windows, at least in this version, were a mess. NetWare Client 4 would improve
+    the situation somewhat, but it should be noted that NetWare 3.12 was released 1993, and NW3.12 was very popular.
+    Windows 3.x had been on the market for three years at this point, and Windows already had become a staple at that
+    point. More damning is Windows for Workgroups and the Microsoft Workgroups Add-On for Windows had already been
+    released at this point.</p>
+
+<p>To sum up, the user experience was poor on DOS &mdash; and amazingly &mdash; even worse on Windows. I really don't
+    know how Novell botched this so badly, but they did. The administration experience was as bad if not worse overall.
+</p>
+
+<p>There's also another glaring omission to talk about: as far as I can tell, there is no support for dial-up networking
+    in <b>any form</b> with NetWare. Modems were immensely popular in this era for home and mobile users. TCP/IP over
+    dial-up eventually codified around SLIP and later PPP to handle modems, while Microsoft provided Remote Access in
+    Windows 3.1/NT for NetBIOS and later Dial-Up Networking in 95 for PPP/SLIP, and NetBIOS. I also believe IBM offered
+    NetBIOS with its own LAN Server product line. I can't find an equivalent technology for IPX or NetWare in general.
+    Microsoft notably got NetBIOS to work which has no concept of routing at all! The only references I could find to
+    modem support is relating to ACONSOLE which allows a network administrator to dial into a NetWare server.</p>
+
+<p>From what shreds of documentation I can find on the subject, dial-up networking for Windows 95 did, in fact, support
+    IPX over modems... but it assumes that it's dialing into Windows NT Remote Access Service which then routes to
+    NetWare. If there was a first-party solution from Novell, I'm unaware of it. I also have to assume there are add-on
+    NLMs for this, because NetWare does support serial ports so it's not like attaching a modem would be hard.</p>
+
+<p>If the community knows, let me know and I'll post an update/correction. Having thoroughly thrashed NetWare's user
+    experience, it's now time to step into the role of the World Controller, and see how Mustapha Mond managed NetWare.
+</p>
+
+<h3>The Administration Experience</h3>
+
+<p>If Mond is arguing against the value of free will, then as John, I can only state that Novell showed great creativity
+    in the inconsistencies with their administration experience. Let's start with the simplest to describe: RCONSOLE</p>
+
+<p>It's <a href="https://www.theregister.co.uk/2001/04/12/missing_novell_server_discovered_after/">not exactly unheard
+        of that NetWare servers ended up getting walled in</a>. After all, the server console isn't exactly a useful
+    feature post-installation. In a stunning display of usability, Novell allows network administrators to use the
+    RCONSOLE command to remotely access the console in a 1:1 copy of the server framebuffer via the RSPX protocol. As
+    such, walling up a server is an entirely practical means of physical security.</p>
+
+<p>Configuration on the server side is relatively simple. LOAD REMOTE enables remote administration, and LOAD RSPX
+    allows for RCONSOLE over IPX. Modem support (via ACONSOLE) and serial terminal (LOAD RS232) were also available:</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/load_remote.png" alt="LOAD REMOTE"></p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/rconsole.png" alt="RCONSOLE menu"></p>
+
+<p>At first glance, this seems somewhat useless, given what I've said about the server console before. However, a hidden
+    menu pops up if "*" is pressed on the numeric keypad (and it <b>has</b> to be the numeric keypad):</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/rconsole_menu.png" alt="RCONSOLE Start menu"></p>
+
+<p>Beside the option to switch servers, RCONSOLE does provide a somewhat handy mechanism to copy files. Unfortunately,
+    this directory copy isn't recursive, which means its pretty useless for installing patch files, and while the file
+    browser <i>exists</i>, you have to manually type paths to use it to just add that final bit of salt in the wound.
+    The other main option, Copy System and Public Files we've already seen before: this was used to install some
+    patches, add-on software, and functions essentially identically to INSTALL. The primary purpose of this function,
+    though, is to actually fully install NetWare from a second machine as a kludge around the lack of client-side
+    sharing options.</p>
+
+<p>The real meat of NetWare system administration comes from SYSCON which is used to actually create users, groups, and
+    manage permissions (functionality also shared with FILER).</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/syscon.png" alt="SYSCON"></p>
+
+<p>It wasn't immediately obvious on how to actually <b>add</b> a new user however. The secret is the INSERT and DELETE
+    keys which, again, the UI doesn't point out. User permissions and groups are much more similar to what we got in
+    Windows NT than POSIX groups, and I'm curious if Microsoft copied NetWare in this regard or if the basic layout was
+    due to government mandates for security.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/syscon_add_user.png" alt="SYSCON add users"></p>
+
+<p>Both system and user login scripts can be edited through SYSCON, as well as specific permission grants. Something
+    that doesn't translate well is how clunky actually setting ACL permissions is. Instead, it's easier to look at how
+    Novell officially recommended working out user and group permissions.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/acl_worksheet.png" alt="ACL Worksheets"></p>
+
+<p>I can only assume the conversation at Novell went something like this:</p>
+
+<p><b>Manager 1:</b> So we have this large massive product with amazing access control features, what tools should we
+    give our customers to control these?</p>
+
+<p><b>Manager 2:</b> Well, we have the FLAG command, and maybe we could add them to SYSCON, and let you look at them in
+    FILER. Maybe if we gave them some sorta template to work off?</p>
+
+<p><b>Manager 1:</b> Perfect, ship it!</p>
+
+<p>I legitimately have no idea how you could easily audit permissions on a NetWare server given the total lack of
+    scripting support and poor tooling.</p>
+
+<p>I did notice this gem in the documentation, the eXecute Only flag, which acted as a form of DRM for network
+    installation applications:</p>
+
+<blockquote>
+    <div>
+        <p>Prevents copying or backing up files.
+            Attribute cannot be removed. Assign only to files with an
+            .EXE or .COM extension (program files).</p>
+
+        <p>Keep a duplicate of these files in case they become
+            corrupted and need to be replaced.</p>
+
+        <p>CAUTION: Some programs do not execute properly if
+            flagged Execute Only.</p>
+
+    </div>
+</blockquote>
+
+<p>How this actually works is unclear &mdash; files obviously have to be read to be loaded into local system memory
+    &mdash; and I'm not sure I want to find out.</p>
+
+<p>Besides SYSCON, NetWare also came with built-in utilities for printer management (PCONSOLE), creating network
+    bootable DOS disks (DOSGEN), talking to BTreieve, and much more. Here's a list of all the programs just to give you
+    an idea of scope.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/login_commands.png" alt="DIR * /w"></p>
+
+<p>So much of this was a chore. I didn't exactly expect software of this vintage to be especially user-friendly. But,
+    given how much Novell was charging for NetWare, I was expecting something less clunky. This is the case even before
+    mentioning that add-on software could bring NetWare crashing down with an ABEND.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/abend.png" alt="ABEND"></p>
+
+<p>It's rather telling that there is an entire book in the box dedicated to this topic.</p>
+
+<h3>The Theorical Printer Experience</h3>
+
+<p>As stated, I didn't test NetWare's print capability, as the only printer I have is several decades too new. I did,
+    however, read the documentation, and I immediately spotted a problem. Printers had to be connected to a NetWare
+    server of some form. Unlike NetBIOS, NetWare and its Network Control Protocol work in a client-server architecture
+    instead of a peer-to-peer mode. While this is usually desirable for things like files, printers benefit from being
+    physically accessible.</p>
+
+<p>NetWare clients were that, clients. They have no inherent ability to share files or printers from the local system.
+    The problem becomes obvious, you needed a NetWare server physically attached to the printer, or at least something
+    that could fake it. NetWare had two separate products for peer-to-peer sharing, NetWare Lite, and Personal NetWare
+    which both in DOS. Personal NetWare was later bundled with DR-DOS after Novell bought out Digital Research. How
+    these integrate into an environment that has a proper NetWare server is at best unclear, especially in regards to
+    access control lists, and the later Novell Directory Service.</p>
+
+<p>I suspect I'm going to have a "Personal NetWare" experience video/article, but from what I can tell from the
+    documentation, Personal NetWare simply showed up as a normal NetWare server on the network and didn't operate in
+    true P2P mode. I suspect this wasn't a problem in practice as IPX SAP could easily fake true P2P connectivity.</p>
+
+<p>The problem is, however, that NetWare Lite and Personal NetWare were separate retail products, and required
+    individual licenses for each machine with serialized disks used to install it; the client won't allow it to be used
+    if it sees the same license being used. I also know that several very high end printers such as HP's LaserJet 4
+    could have a network card installed and the printer shared to a NetWare network, likely appearing as an independent
+    server. HP also offered JetDirect which had a parallel port on one end, and a network plug on the other which
+    converted most of their printer line into network capable beasts.</p>
+
+<p>I'd like to hear personal experiences about NetWare printing, because frankly, it looks pretty bad. NetWare printers
+    are mapped to LPT ports, and DOS applications/Windows had to provide their own drivers (Windows for Workgroups also
+    has the same problem), and I can't imagine how this could possible work with UNIX, or Macintosh clients.</p>
+
+<p>I do get the sense that "Yes, it works with NetWare" was more marketing hype than actual truth. Maybe "It sorta works
+    with NetWare if your network administrator is a god among mortals" might have been more accurate.</p>
+
+<h3>The Conclusions from Experience</h3>
+
+<p>To be perfectly frank, I'm not sure what I was expecting when I dove into NetWare. I knew about some of its technical
+    quirks such as running in Ring 0 and cooperative multitasking, but as a whole it's an entirely different experience.
+    NetWare's IPX protocol was its killer feature, but because internet TCP/IP required every computer in a NetWare shop
+    to be dual-stacked, it quickly became irrelevant.</p>
+
+<p>Since you already had to climb Mt. TCP/IP to get on the Internet, IPX's plug and play features stop being relevant as
+    a sales point. Furthermore, if you had UNIX in any form &mdash; which was almost universally TCP/IP &mdash; you were
+    in the same spot. Without it, you're left with a very expensive file and print server which wasn't really better
+    than a DOS box at running add-on software. IPX's second major feature &mdash; good performance on non-switched
+    networks &mdash; became less and less important as switched Ethernet became dominant and as cheaper switches could
+    replace NetWare boxes for routing. You're also left with a product that your system administrators hate; given a
+    lack of lock-in, they could (and did) jump ship as it became viable to do so.</p>
+
+<p>Now, to Novell's credit, IPX and the base NetWare package felt rock solid, and the DOS ODI stack is incredibly small
+    for its size. The latter I really need to emphasize, I've struggled with conventional memory with MSNet for DOS, but
+    Novell's stack just sips memory which meant it was considerably less likely to conflict with DOS applications which
+    were always competing for conventional memory. As for IPX, most of what it gave the world would only reappear in
+    IPv6, and even then, the latter is nowhere as plug-and-play friendly (DHCPv6, I'm looking at you).</p>
+
+<p>Novell would have stayed relevant in this space if their product hadn't stagnated for five years. NetWare 2.x was not
+    very different from 3.x from what I can glean from its documentation in either user experience or administration.
+    NetWare was essentially called feature complete in the late 80s, and that was that. Compounding the problem was that
+    NetWare Directory Services was not well received and NetWare 4 initially had a stupidly high price tag compared to
+    NetWare 3.</p>
+
+<p>Windows NT 3.5 and 4.0 would prove to be a wakeup call, and Novell went on a buying spree to try and compete. DR-DOS,
+    DESQview, WordPerfect, and NetWare Server for OS/2 couldn't stop the ship from sinking at that point. Ultimately,
+    and what could be said as irony, Novell, who had bought UNIX from the remains of Ma Bell, with the intention to kill
+    it ended up migrating their product line onto SuSE Linux. The final versions of NetWare either ran Linux as a NLM,
+    or itself ran as an application under Linux.</p>
+
+<p>My personal opinion is that Microsoft won this battle by having a better and cheaper product. While Microsoft did
+    pull some underhanded moves (which eventually lead to Novell v. Microsoft over WordPerfect for Windows), the fact is
+    I don't have a lot to recommend NetWare instead of Windows NT. NetWare might have been faster, but processor speed
+    increases meant the network, not the CPU, quickly became the bottleneck.</p>
+
+<p>In short, innovate or die ...</p>
+
+<p>73 de NCommander</p>
+
+<p><b>P.S.</b> I fully expect to come back to NetWare as I want to try and write a definitive account of Novell's fall
+    from grace in the 90s. That means tracking down hardware that can run NetWare 2.01 (the earliest surviving version),
+    and either a 3C501 card and thicknet cabling (or adapters), as well as later NetWare versions, especially 6.x. I
+    especially want to see how NDS actually compared to Active Directory as it came first. I also want to collect user
+    experiences, so write yours below so I can share your memories as part of these articles.</p>
+
+<p><b>P.P.S.</b> I'm also on the lookout for Banyan VINES. VINES has a hardware dongle protection measure, and I've yet
+    to find a complete set on eBay or similar. That being said, I think we're soon going to be touching into the history
+    of Windows NT, as I managed to score a copy on eBay for an unboxing and exploration video.</p>
+
+<p><img src="/images/articles/2020/novell_netware_experience/backoffice_server.png" alt="BackOffice Server"></p>
+
+<p><b>Note: This post originally appeared on <a href="https://soylentnews.org">SoylentNews</a> on <a
+            href="https://soylentnews.org/article.pl?sid=20/05/24/0644226">June 1st, 2020</a></b></p>
