@@ -1,0 +1,525 @@
+---
+title: "Examining Windows 1.0 HELLO.C - 35 Years of Backwards Compatibility"
+date: 2020-05-26T12:00:00-04:00
+draft: false
+author: NCommander
+tags: [windows for workgroups, virtualization fun, broken things, networking, retrocomputing, soylentnews repost]
+
+---
+
+<p>So at it turns out, being cooped up due to COVID-19 causes your local resident NCommander to go on a retro computing
+    spree. Last time, I dug into the nuts and bolts of <a
+        href="https://soylentnews.org/article.pl?sid=20/05/10/1753203">Hello World for Windows 1.0.</a>. Today, the
+    Delorean is ready to take us to 1993 &mdash; the height of the "Network Wars" between Microsoft, Novell Netware, and
+    many other companies competing to control your protocols &mdash; to take a closer look at one of Microsoft's
+    offerings: Windows for Workgroups</p>
+
+<p>As with the previous article, there's a YouTube video covering most of the content as well as: a live demonstration
+    of Windows for Workgroups in action, my personal experiences, and the best startup chimes of the early 90s.</p>
+
+<p><a href="https://www.youtube.com/watch?v=muFhbgIvF4w"><img
+            src="https://soylentnews.org/blob.pl?id=6a4be558197117556b2ee7d2b572d9ee"
+            alt="Exploring Windows for Workgroups 3.11"></a></p>
+
+<h3>The Windows 3.1 Family Tree</h3>
+<p>The 16-bit family tree of Microsoft Windows can be a tangled beast, especially when we get to the topic of Windows
+    for Workgroups. You may have noticed I haven't used it's more common version number: Windows 3.11. That's because
+    there was, in fact, a free-standing Windows 3.11. In truth, the following all existed at one point or another:</p>
+
+<ul>
+    <li>Windows 3.1</li>
+    <li>Windows for Workgroups 3.1</li>
+    <li>Windows 3.11</li>
+    <li>Windows for Workgroups 3.11</li>
+</ul>
+
+<p>For clarity sake, if I speak of Windows 3.1, I'm speaking of the original release, while Windows for Workgroups (WfW)
+    refers to the final release unless I specify otherwise.</p>
+
+<p>The versioning and numbering is extremely misleading. At the earliest end of the chart clocking in from 1992 is the
+    basic Windows 3.1 that most users are more familiar with. Windows 3.1 required an 80286 or better, and had no
+    integrated network stack (although one could be added). When people are talking about 16-bit Windows, this is
+    generally the version most people are referring to. Operation on an 80386 would bring Enhanced Mode which brought
+    better performance and the possibility of 32-bit applications to consumer Windows.</p>
+
+<p>Windows for Workgroups 3.11 meanwhile emerged mid-1993 and supplanted the original release. Requiring an 80386, this
+    version brought 32-bit driver access and boasted faster performance and better stability. In addition, Workgroups
+    3.11 came with built-in networking support in the form of Microsoft's homegrown Windows Socket implementation with
+    IPX/SFX, NetBIOS, and ARCnet included on the installation disks. TCP/IP was available as a free add-on.</p>
+
+<p>Having had to pop open the kernel debugger due to system crashes (also detailed below), I can tell that Windows for
+    Workgroups 3.11 is far closer to Windows 95 than it might appear at first glance and many of the foundations of what
+    would become the 9x series of Windows would be laid here instead of being introduced with Windows 95 as is commonly
+    believed.</p>
+
+<p>That leaves the two remaining versions, Windows 3.11, and Windows for Workgroups 3.1. </p>
+
+<p>Windows 3.11 is something of a mystery to me. The freestanding upgrade has been archived, and I even went as far as
+    to install it to examine differences. In short, I found one:</p>
+
+<p><img src="https://soylentnews.org/blob.pl?id=90e0f994ecb6f104d6398a048e98bde5" alt="Windows 3.11 About"></p>
+
+<p>Notably, Windows 3.11 still supported the 80286 and Standard Mode, and still brands itself as Windows 3.1 on the
+    installer and splash screen. As such, it's actually a distinct kernel than the later WfW 3.11. This, of course,
+    leaves the last version on the list: Windows for Workgroups 3.1.</p>
+
+<p>As for Windows for Workgroups 3.1, what I can tell you is it was a bundled copy of Microsoft Windows 3.1, and
+    Microsoft Workgroups Add-on for Windows which still primarily depended on DOS for networking and notably also
+    supported the 80286. This might not sound like a big deal, but Windows for Workgroups actually played a starring
+    role in bringing both networking and eventually Internet connectivity as something we take for granted as a part of
+    the operating system.</p>
+
+<h3>The Windows Socket API</h3>
+
+<p>Some broader context is needed to understand the implications here. As far back as PC-DOS 3.x, the need for
+    networking support in the base operating system was well understood. PC-DOS 3.1 formally introduced the network
+    redirector API, a mechanism where add-on software could attach network drives to DOS. The network redirector API was
+    so well designed that it was later (ab)used for various non-network devices such as MSCDEX to provide CD-ROM support
+    for DOS and Windows.</p>
+
+<p>What DOS didn't provide however was a standard network API. Instead, Novell, IBM, Microsoft, Sun Microsystems, and
+    many other companies provided their own packet interface and network stacks through a variety of APIs that were
+    mutually incompatible. Microsoft itself has its own hat in the ring, its LAN Manager Server for OS/2, and Microsoft
+    Workgroups Add-on for DOS.</p>
+
+<p><img src="https://soylentnews.org/blob.pl?id=41f15f4c500f6fa682d18ed44f4539ad" alt="Workgroup Add-On" height="50%">
+</p>
+
+<p>Initially, this wasn't a problem. Most shops would have a single network (and of those, most commonly Novell NetWare)
+    and set of programs. Windows 1.0 and 2.0 furthermore ran in real mode, which meant that Windows applications could
+    simply talk to DOS APIs without a middle man. Problems began to emerge with Windows 286/386/3.0.</p>
+
+<p>Internally, Microsoft was beginning to move towards Protected Mode. While the 80286 had a crippled ability to use
+    memory above 1 MiB, 640 kilobytes was clearly becoming cramped. With OS/2 still struggling and Windows NT still far
+    from shipping, Microsoft began to pivot on extending the useful lifespan of DOS-based Windows by embracing the
+    then-new world of 32-bit computing. By having the core of the operating system running in Protected Mode, Windows
+    could theoretically use up to 4 GiB of memory with each application having a 16 MiB chunk to itself.</p>
+
+<p>Networking was also becoming more important in corporate environments. Ethernet (both in thicknet and thinnet), and
+    Token Ring came out as front runners, and Novell's IPX/SFX competed with TCP/IP used on UNIX workstations. IBM and
+    Microsoft meanwhile were backing NetBIOS for use on small LANs while supporting NetBIOS-over-IPX and
+    NetBIOS-over-TCP in larger corporate networks.</p>
+
+<p>Something was going to have to give, so Microsoft, in cooperation with Sun Microsystems and JSB Software,
+    collaborated to write the Windows Socket API; it was later and more commonly known as Winsock. The intention of
+    Winsock was to give Windows a standardized mechanism of interfacing with network cards (NDIS), network protocols,
+    and programming interfaces. In short, the ability to embrace all the competing network technologies at once.</p>
+
+<p>Windows 3.1 was the first version that could support a Winsock stack natively, but Microsoft didn't provide one in
+    the box. Instead, Microsoft initially left this entire market to third-party developers, leading to one of the most
+    pirated pieces of software of this era: Trumpet Winsock</p>
+
+<p><img src="https://soylentnews.org/blob.pl?id=244e3d9312293934a6fca2bffb7c90f1" alt="Trumpet Winsock"></p>
+
+<p>Many other vendors and even ISPs shipped their own versions of Windows Sockets which powered the first Internet
+    applications on Windows 3.1. For example, AOL for Windows became notable on the basis that it provided Winsock and
+    gave those enjoying dial-up the ability to use applications like Netscape Navigator. This is in contrast to
+    CompuServe and Prodigy Classic whom gave you their own walled gardens. CompuServe would eventually embrace the
+    standard PPP protocol via the famous !go pppconnect to join the broader Internet.</p>
+
+<p>Although most vendors simply shipped TCP/IP, a few vendors supported their own Layer 3 protocols, including DEC whose
+    PATHWORKS product included full support for DECnet on Windows!</p>
+
+<p>That state of affairs was going to change. With the famous Microsoft-IBM divorce of the 90s, OS/2 wasn't going to
+    become the operating system of the future &mdash; the DOS-based versions of Windows got an unexpected stay of
+    execution. Microsoft had developed its own version of Winsock which had premiered on Windows NT with support for IPX
+    and NetBIOS standard, as well as a BSD STREAMS derived TCP/IP stack.</p>
+
+<p>Windows for Workgroups 3.11 was Microsoft's first widely-distributed, network-enabled Windows. Although most home
+    users had little use for it, it also would prove a widespread technological test. Windows for Workgroups 3.11 would
+    mark the start of using 32-bit components in a fundamental way.</p>
+
+<p>Compared to the rest of the system, the network stack was entirely 32-bit. Known as Shoebill, its internal
+    implementation of the Windows Socket API was ported from Windows NT. Existing as a set of 386 VxD drivers and
+    userland libraries, Shoebill would be the first version of Winsock shipped in the box for home and small office
+    users. Internally, Shoebill provided the NDIS3 interface, a standardized model for writing network card drivers.
+    NDIS has continued to be supported by Microsoft, and incidentally is the same technology used to allow Windows
+    network drivers to be used by Linux and FreeBSD via ndiswrapper.</p>
+
+<p>In the context of the era, Windows for Workgroups 3.11 was also an important stepping stone. More notably, it was the
+    first major real-world test of thunking, a technology Microsoft used to support 16-bit and 32-bit Windows side by
+    side for decades. While the home user may have not gotten much from Windows for Workgroups 3.11, it was an important
+    milestone of what would become Chicago, and then Windows 95.</p>
+
+<p>It would normally be at this point I'd start showing demonstrations of this cutting edge technology, but before we
+    get there, I need to detour into the nightmare I had in actually getting Windows for Workgroups running.</p>
+
+<h3>Interlude: General Protection Hell</h3>
+
+<p>Under normal circumstances, I like to use VirtualBox for running older versions of Windows, DOS, and Linux as it has
+    excellent compatibility with the especially oddball systems like Xenix. It also has the ability to do internal
+    networking and NAT Networks which avoid the pain of having to setup and configure TAP.</p>
+
+<p>Furthermore, VirtualBox emulates an AMD PCNet PCI card, and works correctly with Super VGA modes so I could easily
+    get high resolution and networking support in one easy package. I also knew Windows for Workgroups ran successfully
+    as I had used it for testing the Windows 1.x binaries.</p>
+
+<p>One problem: Windows suffered an EIOIO error and bit the farm when I installed the networking stack.</p>
+
+<p><img src="https://soylentnews.org/blob.pl?id=f514bd758639d666350ca7ae44bc5edf"
+        alt="Windows General Protection Fault"></p>
+
+<p>In truth, I didn't actually even get that far initially. Windows would just crash to a flashing cursor, and creating
+    a bootlog gave me an empty file. All I knew was I was going belly up very early in the startup process. Some
+    googling suggested that this was a problem with VirtualBox 6.1 removing the ability to run without Intel VTx, which
+    had shipped on Ubuntu 20.04. The problem was more subtle than that, but I initially accepted it and tried other
+    emulators.</p>
+
+<p>My next GOTO was QEMU, but I had more problems here initially. Instead of a PCnet card which needs an add-on, I
+    choose to emulate the more common and compatible NE2000 card whose drivers were shipped on the Workgroup disks. This
+    sorta worked, but I kept getting lockups in both DOS and Windows. I eventually traced the lockups to the fact that
+    QEMU's NE2000 by default sits on IRQ 9. This is a sane default for ISA based machines, but any PC with PCI uses IRQ
+    9 for the PCI bus. As such, the network adapter and the emulated PCI backplane conflicted and lead to lockups.</p>
+
+<p>Annoying, support for ISA mode in QEMU (-M isapc) appears to have bitrotted out of the codebase, and I couldn't
+    convince QEMU to move the NE2K card to a different interrupt or iobase. QEMU does, however, support the RTL8189 and
+    the PCNet card, the latter of which I eventually got to work successfully. Of course, it wasn't that simple. My
+    initial full system hang was replaced with GDI packing it up.</p>
+
+<p><img src="https://soylentnews.org/blob.pl?id=6148449a4a64b00f0337e8f306463c8c" alt="GDI Crash"></p>
+
+<p>Trial and error showed that this was a problem trying to run networking combined with more than 16 colors at the same
+    time. I would eventually determine that by using a Super VGA 800x600 16 color driver partially solved the issue. I
+    could get Windows usable, but I still had screen corruption artifacts on startup. I could, fortunately, get around
+    these by forcing the screen to redraw.</p>
+
+<p>At this point, I was getting rather frustrated, and so I resorted to desperate measures. How desperate?</p>
+
+<p><img src="https://soylentnews.org/blob.pl?id=d96ab391b83a3c9e9f996191c005ddc4" alt="Windows Debug About"></p>
+
+<p>Desperate enough to setup a DEBUG build of Windows which in and of itself was its own set of fails.</p>
+
+<p>Throughout the 16-bit era, it wasn't uncommon to have to use two computers (or at least a serial terminal) to DEBUG
+    crashes as it was common for a system crash to take out the entire operating system. I alluded to this in Windows
+    1.0, but I honestly didn't expect to go down the rabbit hole of trying to setup a debug build of Windows to check
+    under the hood. My first stop was Visual C++ 1.52 which was the last 16-bit version and included the Windows 3.1
+    SDK.</p>
+
+<p><img src="https://soylentnews.org/blob.pl?id=7fb9c654b4eb3c367c6be3ef43655360" alt="Visual C++ 1.52"></p>
+
+<p>Setting up a debug build of Windows is a bit of an experience. Replacement files for core system are shipped in the
+    SDK in the aptly named DEBUG folder, and the scripts <tt>n2d</tt> and <tt>d2n</tt> can convert your release to
+    Windows from RELEASE to DEBUG and back. Furthermore, there were WIN31 and WIN311 folders. Perfect. Or so I thought.
+</p>
+
+<p>As it turns out, the debug Windows kernel, win386.exe is <b>not</b> included on the disk. Without it, I couldn't get
+    any useful debug information out of Windows. Some Googling pointed me to the Windows 16-bit DDK. This had <b>a</b>
+    version of the debug WIN386 but Windows tapped out saying it couldn't load VMM and VMD when I tried it. A quick look
+    at the dates made it clear that this WIN386.EXE was for Windows 3.1, and not for Windows for Workgroups.</p>
+
+<p>At this point, I decided to use my "Phone a Friend" lifeline and called Michal Necasek <a
+        href="http://www.os2museum.com/">curitator of the OS/2 Museum</a>. Long time readers of SoylentNews might
+    remember him from my <a href="https://soylentnews.org/article.pl?sid=17/03/03/1620222">Xenix rebuild series</a>.
+    Michal was able to point out to me that the necessary bits I needed were shipped as part of the free-standing
+    Windows 3.1 SDK.</p>
+
+<p>Much more disk searching later, I finally got my hands on the DEBUG kernel, and I could boot to Program Manager with
+    the /N switch. Setting up an emulated serial port gave me some basic debug messages, but didn't give a clear hint on
+    why we were going belly up.</p>
+
+<p>
+<pre>WARNING: Device failed to initialize (DDB = 80060800) VPD
+BAD FAULT 0000 from VMM!
+Client Frame:
+AX=00100000  CS=0028  IP=80299DFF  FS=0030
+BX=80481000  SS=0030  SP=000000B0  GS=0030
+CX=00000000  DS=0030  SI=80402090  BP=8004CE78
+DX=00000000  ES=0030  DI=54006001  FL=00010246
+WARNING:  About to crash VM 80481000.
+FATAL ERROR:  Attempt to crash System VM
+Windows protection error.
+
+You need to restart your computer.
+
+Windows/386 kernel reentered 0000 times
+Critical section claim count = 000186A0
+
+VM handle      = 80481000
+Client pointer = 8004CE78
+VM Status      = 00000000
+
+
+Stopped while VM executing
+OOOOPPPPSSSS!  V86 CS = 0000.  Probably not valid!
+BAD FAULT 0008 from VMM!
+Client Frame:
+AX=00000000  CS=3202  IP=00000000  FS=0000
+BX=00000000  SS=0030  SP=00002600  GS=0000
+CX=00000000  DS=0000  SI=00000000  BP=00000000
+DX=00000000  ES=0000  DI=00000000  FL=0000036A
+Setting VM specific error on 80481000, error already set GetSetDetailedVMError
+WARNING:  About to crash VM 80481000.
+FATAL ERROR:  Attempt to crash System VM
+</pre>
+</p>
+
+<p>At this point, I needed to use the WDEB386 kernel debugger. Now, I've worked in software engineering for over a
+    decade. I've dealt with crappy programs, shitty debuggers, and much more. I've had the dubious honor of having to
+    run "gdb /usr/bin/gdb". I thought I was immune to "shitty vendor software" surprises.</p>
+
+<p>I wasn't.</p>
+
+<p>I feel like I need to quantify this. The previous "world's worst debugger" prize had belonged to GNU HURD's mach
+    kernel debugger which was so terrible, I was more productive with putting inline assembly breakpoints and printf
+    than actually using it to debug anything. WDEB386 stole the show.</p>
+
+<p>The first part is WDEB386 is not well documented, and its built-in help is very bare-bones. What little documentation
+    I could find related to using it on Windows 95. Almost every USENET post ended with a sentence like "Use SoftICE."
+    This was an encouraging first sign. More warning signs cropped up when I had to apply a hex patch to run WDEB386 as
+    it refers to Intel's removed tr6 and tr7 registers, which causes most vintage debuggers to tap out. Unlike most
+    debuggers, symbol files have to be manually loaded one-by-one as line switches, and I ran into DOS's command-line
+    limit. Even OS/2's debugger was less bad than this. In short, the amount of symbols isn't limited by memory, but how
+    short your file paths are.</p>
+
+<p>Secondly, WDEB386 wants a DOS PC or something very close to it on the other end. No amount of terminal fiddling could
+    get it to properly recognize keypresses. PuTTY, which normally is "close enough" to work was better, but I still
+    couldn't execute multicharacter commands.</p>
+
+<p>At this point, I had already figured out a set of QEMU settings that worked to film my video. At this point, I should
+    have realized I had already opened pandora's box. Instead, I doubled down.</p>
+
+<p><img src="https://soylentnews.org/blob.pl?id=cacc80a156e3841fc7195befe526c7ae" alt="*" width="50%"></p>
+
+<p>This wasn't exactly an ideal solution to the problem, but it got the job done. I also managed to get actual crash
+    messages, at which point WDEB386's terribleness struck further. I couldn't get a stack trace out of it, and I had
+    trouble setting breakpoints.</p>
+
+<p>Unlike most other debuggers, WDEB386 actually depends on the Windows kernel to give it hints of what modules are
+    loaded and VxD operations. It's more of a command-line for the debug kernel. As such, most of the "extended"
+    commands failed; I couldn't use .VM to see what, if any, drivers had loaded, and the message BAD FAULT 0000 sent me
+    down another rabbit hole.</p>
+
+<p>Through experimentation, Michal and I determined that Windows was tapping out somewhere in NDIS.SYS. My original
+    theory was conflicts relating to the PCI bus, but I was able to reproduce the crash with the Remote Access Service
+    Serial Driver and no network driver. Furthermore, forcing Windows to use a real mode driver also averted the crash.
+</p>
+
+<p>Eventually Michal realized that BAD FAULT 0000 wasn't the debugger reporting a null pointer exception. Instead, it
+    was an Intel processor exception code! What was the exception?</p>
+
+<p>Divide by Zero.</p>
+
+<p>Michal was able to isolate this to a timing loop that tries to determine the number of milliseconds between
+    operations. As it turned out, my desktop runs so fast that when combined with VT-x, the whole thing goes *bang*. We
+    haven't worked out a binary patch for the issue, but at least we know where and what the root cause is, and it
+    shouldn't be THAT hard to fix for someone with a version of IDA that can disassemble linear executables.</p>
+
+<p>The lesson that needs to be taken away from this is that while Intel platforms have outstanding backwards
+    compatibility, a lot of legacy software has bugs when running on hardware tenfold faster than what they were
+    designed for. A lot of full PC emulators like PCem have limited support for emulating network cards, and it's
+    becoming harder and harder to document these legacies of the past.</p>
+
+<p>Anyway, having segfaulted my way back to the original topic, let's actually get down and dirty with Windows for
+    Workgroups 3.11!</p>
+
+<h3>The First Click of Your Networking Experience</h3>
+
+<p>Now, if you were lucky, you didn't have to install the debug build to actually experience Windows Networking.
+    Assuming you're one of the anointed few, the network setup application is your key to the best of early 90s
+    networking. Simply click the icon, insert your floppy disks, and away you go.</p>
+
+<p><img src="https://soylentnews.org/blob.pl?id=2c791598a68340ca61b9f32e937a43bd" alt="Network Setup"></p>
+
+<p>What isn't obvious though what's missing. The first quirk comes from the fact that TCP/IP (as previously noted) is
+    nowhere to be found. This actually wasn't a big deal back in 1993. At the time neither RFC1918 network space nor
+    DHCP existed, so (properly) setting up TCP/IP networking involved calling ARIN/RIPE/etc. and getting a Class C
+    network or three. IPX is instead used as the default transport, primarily because it's both plug and play, and
+    almost all network equipment of the era could easily route it. For those who needed it, TCP/IP was available as a
+    download on ftp.microsoft.com free of charge.</p>
+
+<p>Secondly, Shoebill had almost no support for dial-up networking. As such, the Network group would be an oddity for
+    most home users. We'll come back to that later though.</p>
+
+<p>The next step was getting QEMU TAP networking sorted. I'll spare you my pain and misery and just leave a Wireshark
+    trace showing that we were infact talking on the network, complete with NetBIOS over IPX.</p>
+
+<p>After Network Setup does its thing, we're left with a Network group with a lot of icons, and some additional
+    functionality throughout the operating system.</p>
+
+<h3>Your Network Aware Windows 3.1 Applications</h3>
+
+<p>Network Setup actually does quite a bit under the hood. First, it sets up PROTOCOL.INI and sets up the "For
+    Workgroups" product to be able to run under DOS. One thing that isn't well documented is that you could actually run
+    the networking parts of Windows independent of Windows. This still uses real mode drivers, and I suspect is
+    identical to Workgroups for DOS.</p>
+
+<p><img src="https://soylentnews.org/blob.pl?id=4b55565cad2d2c4067eba644026d09c5" alt="NET on DOS"></p>
+
+<p>Once setup though, many applications gained a large variety of network aware options that were previously hidden.
+    File Manager gained file sharing and network drive functionality that is very close to what shipped in Windows 95.
+    Print Manager likewise got the same upgrade. A few less obvious ones were that Clipbook Viewer now allowed you to
+    share Clipbooks between users. This used NetDDE and essentially acted liked a shared network database. It only
+    worked while the application was open, however.</p>
+
+<p><img src="https://soylentnews.org/blob.pl?id=c317a0597a557d304ea5dd2b653ffacd" alt="File Manager"></p>
+
+<p><img src="https://soylentnews.org/blob.pl?id=ede67fcc2e8ba089430322c5f0de8bea" alt="Print Manager"></p>
+
+<p><img src="https://soylentnews.org/blob.pl?id=ea5ebd0779423b790d7c363a8b05bf2b" alt="ClipBook Sharing"></p>
+
+<p>Hearts, which also appeared in this version of Windows, could be played with three other players over the network.
+    The application was called "The Microsoft Hearts Network" to emphasis this fact.</p>
+
+<p><img src="https://soylentnews.org/blob.pl?id=55a06dd93c5ccae4f7f164d8bfeddcc4" alt="Hearts"></p>
+
+<p>Most of this functionality persisted across multiple Windows versions, although as of Windows 10, only the file and
+    printer sharing has more or less survived as-is. Of course, though, we still have a large suite of applications to
+    look at though. As a note, because I was working across multiple machines and some of these screen shots are from my
+    original <a href="https://threadreaderapp.com/thread/1258997891546386432.html">Twitter thread</a>, the colors vary
+    depending on which machine I was using at a given time.</p>
+
+<h3>Microsoft Mail</h3>
+
+<p><img src="https://soylentnews.org/blob.pl?id=4240af993adc2e35fa26d77e380c713c" alt="Microsoft Mail"></p>
+
+<p>Microsoft Mail itself is an interesting topic that it will likely get its own video and article at a later point. As
+    the name suggests, it is a simple mail client application capable of LAN email. Originally, Microsoft Mail was an
+    independent product for DOS, Windows, Mac, and OS/2. The version shipped in Windows for Workgroups 3.11 was a
+    stripdown version that only supported Windows, and the entire product itself would eventually morph into Exchange.
+    As a bit of trivia, this is why the first version of Exchange was 4, as the previous Mail release was 3.2.</p>
+
+<p>On a fresh installation, Microsoft Mail asks if you wish to create a Workgroup Postoffice. This is a shared mail
+    database written to the file system. The idea is that the postoffice is shared across the network, and clients could
+    directly read and write to the post office. That also meant Mail could be used with a NetWare server, or any product
+    that could map network drive.</p>
+
+<p>That being said, since that functionality was included in the default install, inter-office mail was entirely
+    possible with just Windows for Workgroups 3.11 by itself with no additional add-on software. For communication with
+    other systems, a daemon called EXTERNAL was available for OS/2 which could bridge Mail to UUCP networks and more
+    standard SMTP. This was not tested for this article.</p>
+
+<p><img src="https://soylentnews.org/blob.pl?id=0ee2d726c6169ba2072008680cfd7d86" alt="Mail First Start"></p>
+
+<p><img src="https://soylentnews.org/blob.pl?id=6996d731f8cc40ed291ce973ee6c5741" alt="Create first user"></p>
+
+<p>Rather notably, passwords are shown in the clear. In truth, there's no actual security in this product as any user
+    could access the shared mailbox directory and download all the mail on the server. Preferences also have an
+    interesting radio box for selecting your security level:</p>
+
+<p><img src="https://soylentnews.org/blob.pl?id=27e8d36921a62985351b77b0071f4263"
+        alt="The GREATEST Security switch ever!"></p>
+
+<p>I leave it to the readers to comment on why this is such an inane switch!</p>
+
+<p>Moving on, user mailboxes could be stored locally or on the backend server, and the Mail client easily allows one to
+    move from place to place. This is especially important if multiple users were using one computer as they all end up
+    sharing a single MMF mailbox on a local disk.</p>
+
+<p>Once setup, the software is simple enough to use, although it's slightly quirky compared to modern clients as mail is
+    only sent and received on timed intervals and I sometimes had to close and re-open the client to get it to actually
+    work. Setup on a client machine is equally straight forward, with one simply needing to select the network share the
+    WGPO folder was shared on.</p>
+
+<p>A global address book and mailing lists are also available. All this functionality was also integrated into our next
+    program, Schedule+. Finally, once setup, Mail would add an icon to File Manager's toolbar, allowing you to easily
+    attach files. (The toolbar itself was also added in this version of File Manager).</p>
+
+<h3>Schedule+</h3>
+
+<p>Rather hilariously, Schedule+ suffers from a Y2020 problem, so I had to turn back the system clock to use it at all.
+</p>
+
+<p><img src="https://soylentnews.org/blob.pl?id=cfe478878b113c19b34b7d6f202a626e" alt="Y2020 problem"></p>
+
+<p>Once reality had been suitably rewritten, Schedule+ fired up without issue. Integration with Mail is quickly apparent
+    as it immediately prompts to log into your Mail account, although it is possible to use Schedule+ in a local-only
+    mode.</p>
+
+<p><img src="https://soylentnews.org/blob.pl?id=5387c667a8b78194ba07b7db8af4d888" alt="Schedule+ in 1994"></p>
+
+<p>Schedule+ supported creating invites and had an integrated messaging function that worked off the Network Postoffice.
+    Notably, these messages weren't showed in Mail at all, making meeting invites a bit haphazard. Other users'
+    schedules could be shared and loaded off the postoffice, suitable for secretaries to be able to manage and
+    manipulate their boss's schedule.</p>
+
+<p><img src="https://soylentnews.org/blob.pl?id=c97fa01c586d5192fabb02aeab4e2287" alt="Schedule+ ACLs"></p>
+
+<p>For a product of this time, Schedule+ has a fairly elaborate access control function. I've heard rumors that
+    Microsoft used Schedule+ pretty extensively in-house, so this feature probably existed to help prevent developers
+    from deleting meetings they didn't want to attend.</p>
+
+<p>Beyond that, I really don't have much to say. It's a scheduling app. As a standalone application, it was included
+    until Office 97 entirely absorbed it into Outlook.</p>
+
+<h3>The Other Bits</h3>
+
+<h4>Remote Access</h4>
+
+<p><img src="https://soylentnews.org/blob.pl?id=2251692ee993564afdc6d2516eec48ad" alt="RAS"></p>
+
+<p>Remote Access is the only application I can't actually demostrate as it requires a working modem. In short, it let
+    you dial into a LAN Manager, Windows NT, or Windows 95 server and run NetBIOS applications between the two machines.
+    <b>Note</b> that I didn't say network applications. Remote Access only supported the NetBIOS protocol, so it was
+    useless for accessing the Internet even if a TCP/IP stack is installed.</p>
+
+<h4>Net Watcher</h4>
+
+<p><img src="https://soylentnews.org/blob.pl?id=687774973005697fc333ace3246e37d5" alt="NetWatcher UI"></p>
+
+<p>NetWatcher, as the name suggests, gave you a look at the network stack on your machine. It could show whoever was
+    connected to your PC, as well any files they had an exclusive lock on. If enabled in the control panel, the Event
+    Log could also be viewed here to see who had accessed your machine as well as a record of last startups and
+    shutdowns.</p>
+
+<h4>Log On/Off</h4>
+
+<p>I don't even have a good screenshot for this one. Log On/Off was the dedicated utility for signing in and out of the
+    network; this is the login asked for by Windows at startup and not shared with Mail or Schedule+. Windows Network
+    logins were primarily used by WinPopup and also were used for accessing authenticated shares on LAN Manager and
+    Windows NT machines (Windows 3.1 only supported a global password for sharing).
+
+<h4>WinPopup</h4>
+
+<p><img src="https://soylentnews.org/blob.pl?id=7bf1d28eea82f99a4e4a21dff162ff53" alt="WinPopup"></p>
+
+<p>Ah, the great annoyance of the 90s and early 2000s. WinPopup is a simple broadcast message facility, that could send
+    a message to a user, computer, or an entire workgroup all at once. This feature survived in one form or another
+    until Windows XP, when the then-named "Messager Service" was disabled by default, and removed entirely with Vista.
+</p>
+
+<p>Compared to later versions, this version comes with a GUI interface and also does not run by default. It has to be
+    enabled to do so in the Network control panel.</p>
+
+<h4>Chat</h4>
+
+<p><img src="https://soylentnews.org/blob.pl?id=b0f1c68cafa26736397003d0301e7751" alt="Chat"></p>
+
+<p>Chat on the other hand is a keyboard to keyboard chat application. It acts more like a TTY device or the old school
+    UNIX talk application that keyboard input is relayed in real-time. Like other programs, it needs to be open to
+    actually work on both computers.</p>
+
+<h4>WinMeter</h4>
+
+<p><img src="https://soylentnews.org/blob.pl?id=059712cf24862d622d84dbee516d771b" alt="WinMeter"></p>
+
+<p>WinMeter finally tops out our collection of Windows for Workgroups 3.11 applications with simple performance
+    statistics.</p>
+
+<h3>In Conclusion</h3>
+
+<p>Windows for Workgroups provides a fascinating look at the dawn of the office network. While Windows wouldn't wrest
+    control of the market from Novell for several more years, a lot of what we take for granted first appeared here, and
+    many of the core technologies of Windows 95 first debuted in this oft-forgotten page of Windows history.</p>
+
+<p>Windows for Workgroups was also one of the major instances of Microsoft beginning to incorporate the functionality of
+    its competitors directly into the base product. Just like DR-DOS and MS-DOS, Windows for Workgroups gave you
+    everything Personal NetWare did for no added charge. This behavior would eventually lead to the anti-trust suits of
+    the later 90s, albeit over the inclusion of Internet Explorer instead of network and file-sharing capabilities.</p>
+
+<p>As my emulation stories show, we're also beginning to lose the ability to virtualize and run these ancient versions
+    of Windows (and other software) due to emulation bugs and the onward march of technology This emphasizes the
+    importance of documenting this technology while we still can. There's still plenty to cover, so if you liked this
+    article, give my video a like, subscribe (either to my channel or SoylentNews, both are appreciated!), and let me
+    know your thoughts below!</p>
+
+<p>I've got another topic in the works, so I'll leave you with this teaser screenshot to tide you over until the next
+    time!</p>
+
+<p><img src="https://soylentnews.org/blob.pl?id=8ab1b83bb3b946a5e6352701c0d1c5d9" alt="NetWare MONITOR"></p>
+
+<p>73 de NCommander</p>
+
+<p><b>P.S.:</b> Since recording the video and doing this write-up, I've come to learn that Windows for Workgroups 3.1
+    (not 3.11) actually has some notable changes. This is likely due to being based on the Microsoft Workgroup Add-on
+    for Windows instead of the NT based Shoebill. I may come back to this topic and re-address it, especially if I can
+    get my hands on the add-on.</p>
