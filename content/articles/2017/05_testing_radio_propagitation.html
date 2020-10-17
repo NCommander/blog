@@ -1,0 +1,326 @@
+---
+title: "Testing Radio Propagation With a Baofeng UV-82 and APRS"
+date: 2017-09-25T12:00:00-04:00
+draft: false
+author: NCommander
+tags: [ham radio, baofeng uv-82, aprs, jersey shore, soylentnews repost]
+slug: testing_radio_propagation
+---
+
+<p>As I've said in passing before here on SoylentNews, I'm a ham radio operator, (KD2JRT - Tech). Due to a lack of time
+    and money, I've only been able to afford relatively cheap equipment, primarily two <a
+        href="https://baofengtech.com/uv82">BaoFeng UV-82s</a>, and an external antenna mount for the car. Many of the
+    older ham radio ops decry the Baofengs as cheaply made Chinese junk, but I wanted to see what these radios are
+    actually capable of. Historically, I've had decent success with an external antenna and decent positioning, but I
+    recently conducted an impromptu experiment testing the propagation characteristics with these radios and seeing how
+    well they actually work, and perhaps creating a baseline for more in-depth radio testing in the future.</p>
+
+<p>Over the weekend, I took a day trip to the southern tip of New Jersey, out to Cape May from New York City, and along
+    the way, using a hookup from the radio to my phone, I connected my radio to the national APRS (Automatic Packet
+    Reporting System) network, and used it to measure distance and propagation effects. Since most of the readership of
+    SoylentNews aren't radio techs, past the fold, I'll talk a bit about Baofeng radios, APRS, digital modes, and my
+    results.</p>
+
+<h2>Automatic Packet Reporting System</h2>
+<p>APRS is one of the more interesting possibilities one can do with a ham radio system. At its most basic core, APRS is
+    a store-and-forward mesh network that is traditionally used on the 2M VHF band, and interconnected by a series of
+    digipeaters that can use the internet to tie the entire system together. Due to its architecture, an APRS mesh
+    exists in any location where two radios are broadcasting on the same frequency in the same general area, and APRS
+    itself has a long history of being using in disaster recovery efforts as a low bandwidth/high efficiency reporting
+    system. APRS information is encoded in an AX.25 UI packet (AX.25 is a level-2 protocol used in ham radio).</p>
+
+<p>
+<pre>KD2JRT-7&gt;APDR13,WIDE1-1:=4041.55N/07359.99W$178/039/A=-00045 Out for a drive. Msg for QSO</pre>
+</p>
+
+<p>Broken down, this becomes:</p>
+
+<ul>
+    <li><b>Callsign:</b> KD2JRT</li>
+    <li><b>SSID:</b> 7 (Handheld Radio)</li>
+    <li><b>Client:</b> APDR13 (APRSdroid)</li>
+    <li><b>Relay Path:</b> WIDE1-1 (I want to be relayed one hop)</li>
+    <li><b>Packet Type:</b> = (Positioning data without timestamp)</li>
+    <li><b>GPS Location:</b> 4041.55N/07359.99W (40 degrees north by 73 degrees west)</li>
+    <li><b>Course and Speed:</b> 178/039 - Travelling 178 degrees at 39 knots</li>
+    <li><b>Altitude:</b> A=-00045 I'm 45 feet below sea level</li>
+    <li><b>Comment:</b> Out for a drive. Msg for QSO</li>
+</ul>
+
+<p>Quite a bit of information in a tiny packet to say the least. Obviously my phone's altitude sensor (which was the
+    source of the GPS information) does have some issues since I'm fairly sure I didn't drive underwater at any point in
+    New Jersey.</p>
+
+<p>It's also possible to use APRS without positional information, and to transmit digital messages from terminal to
+    terminal, which can be relayed over the internet allowing for world-wide sharing of information, as well as post
+    digital bulletins. Gateways exist to allow APRS messages to be sent to email, SMS, and Twitter. Unlike typical
+    repeater systems used for voice, APRS is a simplex protocol; all messages are sent and received on the same
+    frequency and does not guarantee delivery of a given packet. Receipt of a packet is usually in the form of
+    digipeating; that is, a client hears its own packet back as it passes through relays on the network. In the modern
+    era, APRS packets are also forwarded onto the internet, and are recorded by services such as <a
+        href="https://aprs.fi/">aprs.fi</a>.
+</p>
+
+<p>Due to its nature, APRS is a perfect way to test propagation effects of radio signals from various locations. As I'm
+    driving, the phone's GPS automatically records my position, and it's broadcast over the air to digipeaters without
+    any intervention from myself. Now that we're got the basics of APRS out of the way, let's talk about the radio.</p>
+
+<h2>BaoFeng UV-82 and Antenna</h2>
+
+<p>The UV-82 is a simple two band handheld radio, which out of the box is capable of transmitting FM signals on the 2m
+    VHF band, and the 70cm UHF band at up to 5 watts of power. Despite the reputation, Baofeng radios have become
+    popular with new ham radio operators for their cheapness. For this test, I was using the Baofeng with a Nagoya UT-72
+    antenna magnetically mounted to the roof of the car (which acted as a ground plane) as seen in this photo.</p>
+
+<p><img src="/images/2017/testing_radio_propagation/rav4_antenna.png" alt="Antenna on RAV4 roof"></p>
+
+<p>The feed line for the antenna is run in through the tailgate, and then back to the front where the Baofeng sits in a
+    cupholder. A data cable connects the phone (a Samsung Galaxy S6 Active) running APRSdroid. Out of the box, the
+    Baofeng doesn't support any digital modes, so a fair question to be asked is how am I doing APRS with it. The answer
+    is that I'm essentially treating the radio as a simple <a
+        href="https://en.wikipedia.org/wiki/Acoustic_coupler">acoustic coupler</a>. APRS/AX.25 packets on VHF are
+    encoded in <a href="https://en.wikipedia.org/wiki/Bell_202_modem">Bell 202</a> <a
+        href="https://en.wikipedia.org/wiki/Frequency-shift_keying">audio frequency-shift keying</a> at 1200 bits per
+    second. The radio is connected to the phone's mic/speaker jack, APRSdroid listens for the modem tones, and simply
+    modulates its replies the same way. The radio is set to operate in VOX (essentially speakerphone) mode, and tuned to
+    144.390 simplex. In the future, I may buy a simple TNC that can automate this process for me.</p>
+
+<h2>VHF 2M Signal Propagation (or What To Expect)</h2>
+
+<p>Before going into any test, it's a decent idea to outline what to expect. The 2-meter band is what's known as a very
+    high frequency band. As such, radio signals sent from the surface of the planet aren't (normally) reflected by the
+    atmosphere, and continue out into space. As such, successfully two-way communication can only be achieved via
+    line-of-sight communications with a maximum range of approximately 75 miles/120 kilometers under absolutely ideal
+    circumstances assuming a relatively high receiving tower. In practice, the antenna design and power drastically
+    influences the maximum range to a much lower number.</p>
+
+<p>Without going in-depth into radio propagation theory and boring everyone half to death, there are two basic types of
+    antennas: directional and omnidirectional. As the names suggest, a directional antenna focuses RF emissions in a
+    specific direction, allowing you to get more bang for your buck, at the cost of focusing the beam and cutting out
+    everything else. With a directional antenna, it's generally possible to transmit and receive upwards of 50-60 miles
+    line of sight on 2Ms through obstructions, and there are reports of people using yagi directional antennas and
+    handheld radios to successfully communicate with OSCAR satellites and the International Space Station in low earth
+    orbit.</p>
+
+<p>Omnidirectional antennas, like the Nagoya UT-72 instead emit signals in all directions, drastically lowing the signal
+    strength as the power is dissipated out in all directions. Handheld radios (known as HTs) are inherently low power
+    (also known as <a href="https://en.wikipedia.org/wiki/QRP_operation">QRP</a>) radios. In practice, the general rule
+    of thumb is to expect 20-25 miles (30-40 km) at best. Within the heart of New York City, with all its obstructions
+    and the same antenna, I usually can get a signal to propagate about seven miles from Manhattan to the W2VL repeater
+    from the waterfront. This is compounded by the fact that the UT-72 is a compromise antenna, and uses electrical
+    lengthening techniques to allow it to properly emanate a 2M radio signal. If I had a proper dipole antenna rig
+    mounted to the car, I could expect far better results.</p>
+
+<p>One final consideration for my mobile setup is the fact that APRS (and its base AX.25 protocol) is a digital mode.
+    Transmission and reception is an all-or-nothing game. Unlike voice FM contacts which can usually be made out despite
+    static (<a href="https://en.wikipedia.org/wiki/Q_code#All_Services_.28QRA.E2.80.93QUZ.29">QRN</a> ), a digital
+    signal must be heard clearly to be successfully decoded. In other words, I'm essentially only going to be registered
+    on the network if the signal is extremely clear. This is very much a torture test for the little Baofeng and its
+    whip antenna.</p>
+
+<h2>The Raw Data</h2>
+
+<p>Before we go deeper into methodology, let's look at the raw data as seen on <a
+        href="https://aprs.fi/#!call=a/KD2JRT-7&timerange=604800&tail=604800">aprs.fi - track</a>. aprs.fi only retains
+    tracks for seven days so I'll summarize the most interesting data below.</p>
+
+<p>Here's the route I drove, starting on Roosevelt Island in New York City, and ended in Cape May. Red dots represent
+    location reports from my phone.</p>
+
+<p><img src="/images/2017/testing_radio_propagation/aprs_map.png" alt="APRS map"></p>
+
+<p>Testing was only conducted North-&gt;South, due to forgetting to recharge the handheld's battery, and having it die
+    on me upon reaching Cape May.</p>
+
+<p>I was heard by the following stations.</p>
+
+<p>
+
+<table border="1">
+    <tr>
+        <th>Callsign</th>
+        <th>Pkts</th>
+        <th>First Heard - EDT</th>
+        <th>Last Heard</th>
+        <th>Longest (tx =&gt; rx)</th>
+        <th>Longest At - EDT</th>
+    </tr>
+    <tr>
+        <td>N2MH-15</th>
+        <td align="right">13</th>
+        <td>2017-09-24 02:45:02</td>
+        <td>2017-09-24 03:44:08</td>
+        <td>17.6 miles 283°</td>
+        <td>2017-09-24 02:45:02</td>
+    </tr>
+    <tr>
+        <td>WA2FPB-5</td>
+        <td align="right">3</td>
+        <td>2017-09-24 04:24:24</td>
+        <td>2017-09-24 04:44:39</td>
+        <td>2.8 miles 151°</td>
+        <td>2017-09-24 04:24:24</td>
+    </tr>
+    <tr>
+        <td>W2AEE</td>
+        <td align="right">6</td>
+        <td>2017-09-17 21:32:51</td>
+        <td>2017-09-24 02:47:45</td>
+        <td>6.5 miles 357°</td>
+        <td>2017-09-24 02:47:45</td>
+    </tr>
+    <tr>
+        <td>K2GE-13</td>
+        <td align="right">2</td>
+        <td>2017-09-24 03:49:16</td>
+        <td>2017-09-24 03:56:12</td>
+        <td>5.4 miles 186°</td>
+        <td> 2017-09-24 03:49:16</td>
+    </tr>
+    <tr>
+        <td>KC2QVT-15</td>
+        <td align="right">1</td>
+        <td>2017-09-24 06:08:33</td>
+        <td>2017-09-24 06:08:33</td>
+        <td>35.2 miles 350°</td>
+        <td>2017-09-24 06:08:33</td>
+    </tr>
+    <tr>
+        <td>KB1EJH-15</td>
+        <td align="right">1</td>
+        <td>2017-09-24 12:15:47</td>
+        <td>2017-09-24 12:15:47</td>
+        <td>23.1 miles 257°</td>
+        <td>2017-09-24 12:15:47</td>
+    </tr>
+    <tr>
+        <td>CLAYTN</td>
+        <td align="right">1</td>
+        <td>2017-09-24 05:46:08</td>
+        <td>2017-09-24 05:46:08</td>
+        <td>34.8 miles 282°</td>
+        <td>2017-09-24 05:46:08</td>
+    </tr>
+    <tr>
+        <td>K2DLS-15</td>
+        <td align="right">9</td>
+        <td>2017-09-24 03:46:39</td>
+        <td>2017-09-24 04:02:53</td>
+        <td>11.1 miles 158°</td>
+        <td>2017-09-24 03:46:39</td>
+    </tr>
+    <tr>
+        <td>WX2NJ-14</td>
+        <td align="right">1</td>
+        <td>2017-09-24 05:08:57</td>
+        <td>2017-09-24 05:08:57</td>
+        <td>2.1 miles 104°</td>
+        <td>2017-09-24 05:08:57</td>
+    </tr>
+    <tr>
+        <td>BARNGT</td>
+        <td align="right">8</td>
+        <td>2017-09-24 04:57:43</td>
+        <td>2017-09-24 05:46:40</td>
+        <td>20.8 miles 193°</td>
+        <td>2017-09-24 04:57:43</td>
+    </tr>
+    <tr>
+        <td>TOMRVR</td>
+        <td align="right">6</td>
+        <td>2017-09-24 04:25:35</td>
+        <td>2017-09-24 05:10:58</td>
+        <td>16.4 miles 198°</td>
+        <td>2017-09-24 04:25:35</td>
+    </tr>
+    <tr>
+        <td>MATWAN</td>
+        <td align="right">5</td>
+        <td>2017-09-24 03:04:19</td>
+        <td>2017-09-24 04:18:34</td>
+        <td>16.7 miles 210°</td>
+        <td>2017-09-24 03:04:19</td>
+    </tr>
+    <tr>
+        <td>K2RHK-10</td>
+        <td align="right">1</td>
+        <td>2017-09-24 02:28:49</td>
+        <td>2017-09-24 02:28:49</td>
+        <td>1.9 miles 286°</td>
+        <td>2017-09-24 02:28:49</td>
+    </tr>
+</table>
+</p>
+
+<p><b>NOTE 1: </b>W2AEE in Manhattan is showing more packets than it should as I can't filter by day on aprs.fi and I
+    was testing the APRS setup last week. In total, approximately 50 packets were received by the APRS backbone.</p>
+
+<p><b>NOTE 2: </b>Despite being in a vehicle, the track shows a phone icon as I forgot to change the APRS reporting
+    symbol</p>
+
+<p>Due to complications with APRSdroid, I don't have an accurate count of how many packets were sent by the handset, but
+    I suspect its approximately 50-100 for reasons that become clear below. Furthermore, I don't have an accurate count
+    of which stations I heard due to stupidity. Now that we've got the raw data out of the way, let's draw some
+    conclusions, and figure out how to refine the testing methodology.</p>
+
+<h2>Conclusions</h2>
+
+<p>All and all, for my first serious field test with the APRS system, this is a fairly healthy result. As I set out
+    simply to play with APRS, and not actually do an experiment when I went out on Sunday, I didn't have in-depth
+    methodology and logging set up. I also learned a few things about how APRSdroid (or more specifically, the
+    SmartBeaconing system) works which drastically reduced the amount of traffic I sent which degraded the results even
+    more. Despite that, I can draw some initial conclusions from this data, and perhaps do further radio propagation
+    tests in the future if the SoylentNews community finds these types of articles interesting.</p>
+
+<p>As expected, within urban areas, my signal propagation was total garbage, only being heard 1-2 miles under best case
+    scenarios by the APRS gateways in Manhattan. Once I got south of the island and running along the waterfront, and on
+    the Queens-Brooklyn Expressway did the signal start being received by the N2HM digipeater in New Jersey ~10-15 miles
+    distant. Signal propagation continued to increase as I crossed the Verrazano Narrows into Staten Island, and then
+    onward into New Jersey. As I stated before, APRS is a digital mode, and being understood is an all-or-nothing thing;
+    if I were using FM voice, it's likely the effective Rx distance would have been further. Supporting that data, in
+    the relatively flat areas of Jersey Coast, I was routinely being heard upwards of 15-20 miles out by the track due
+    to lack of line-of-sight obstructions, and at two points, I was heard over 35 miles (56 km) away by two separate
+    digipeaters!</p>
+
+<p>Unfortunately, due to a lack of IGates south of Atlantic City, I wasn't heard again until I reached Cape May, and
+    picked up by a digipeater on the other side of Delaware Bay</p>
+
+<p>One thing that partially compromises the testing results however is the APRS SmartBeaconing system. As I put in the
+    overview, APRS includes direction and speed information as part of its transmissions. As an optimization of the
+    system, APRS clients can use <a href="http://www.hamhud.net/hh2/smartbeacon.html">SmartBeaconing</a> to reduce the
+    amount of traffic they're reporting. In effect, SmartBeaconing uses dead-reckoning to determine if it needs to send
+    a packet. If I send a position report at a location travelling south at 60 MPH, and two minutes later, I'm two miles
+    south of the previous report, SmartBeaconing will not send a new position since I am where I can realistically
+    expected to be. Since I had cruise control enabled, and the Garden State Parkway runs roughly in a straight line
+    North-South past Sandy Hook, SmartBeaconing drastically reduced the amount of data I was sending. Annoying,
+    APRSdroid still shows phantom reports it didn't send on the log of my station history; and several times, I'd see a
+    report show up in the outbound log, but no red light on the radio saying it was sending.</p>
+
+<p>For receiving characteristics, I checked the phone at each rest area I stopped at, and I was seeing a healthy list of
+    stations show up in the tracker. However, because of the store-and-forward nature of APRS, it's difficult to tell at
+    a glance what stations I was hearing directly, and which were being echoed by a digipeater. It's possible to
+    determine this information by decoding the received APRS packet as repeating stations amend their call sign to the
+    WIDE1-1 line as the packet moves through the network. I also found that I frequently didn't hear myself on the
+    network. I believe this is due to the fact the Baofeng has a relatively slow switch from transmit to receive mode.
+    As such, the radio was cutting itself off and not hearing its own packets come back.</p>
+
+<p>For future experiments, I need to modify APRSdroid to operate as a beacon station and regularly send positional
+    reports on a given interval, as well as log all transmitted and sent APRS packets to files so I can post-process
+    them into a report. I also need to write a method of gaining data from the APRS-IS backbone; many APRS stations are
+    receive only and as such I won't see my own packets if I'm heard by such a station, and possibly use the APRS
+    messaging functionality to confirm two way operation from the network at regular intervals.</p>
+
+<p>Despite the difficulties in testing, I'm pleasantly surprised by the performance of the UV-82, at least when it's
+    using an external antenna. For the most part, I was getting results consistent with QRP operations, and was being
+    heard at distances that my non-expert mind believe are consistent with HT/2M operation. When time permits, I'd be
+    interested in repeating this test in the future, as well testing other types of radio. If any other SoylentNews
+    readers are ham radio operators, and have equipment they'd like to see tested, feel free to get in contact with me
+    via email or IRC. If people find this article interesting, I may run additional ones on radio operations. I'm hoping
+    before the year is out to get everything together to be able to do satellite operations, and make two-way contact
+    with the International Space Station, or one of the two OSCAR satellites currently in operation. If I can get my
+    hands on the equipment, I may even be tempted to try for Earth-Moon-Earth communications.</p>
+
+<p>I'll also be upgrading my license class to General in the next few weeks and pending money, I can also try
+    propagation experiments in HF bands.</p>
+
+<p>Until next time, 73 de KD2JRT</p>
