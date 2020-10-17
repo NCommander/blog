@@ -41,8 +41,8 @@ slug: xenix_part3
 <p>The raw images indicated missing sectors by filling them with 0xF6 (unformatted) and were always in multiples of 512
     bytes, consistent with the size of an individual sector. As such, I needed to know where in the disks we had holes.
     After a few hours of tinkering, I wrote <a
-        href="/files/2017_03_13_xenix_part3/sector_detector.c">sector_detector</a> which generated
-    <a href="/files/2017_03_13_xenix_part3/sector_output.txt">this list</a>.</p>
+        href="/files/xenix_part3/sector_detector.c">sector_detector</a> which generated
+    <a href="/files/xenix_part3/sector_output.txt">this list</a>.</p>
 
 <p>Lots of numbers, right? Well, it’s not quite as bad as it looks. By using a hex editor and comparing strings, I got
     an idea of what is and isn’t missing. In the case of N1, it simply looks like there are some bits of junk data at
