@@ -4,3 +4,6 @@ title = "NCommander's Tech Corner"
 theme = "bootstrap4"
 
 enableGitInfo = true
+
+[permalinks]
+  articles = "/articles/:year/:month/:title/"
