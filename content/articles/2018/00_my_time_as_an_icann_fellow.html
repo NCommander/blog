@@ -1,0 +1,389 @@
+---
+title: "My Time as an ICANN Fellow"
+date: 2018-10-07T12:00:00-04:00
+draft: false
+author: NCommander
+tags: [icann, fellowship, trip report, dns, soylentnews repost]
+
+---
+
+<p><b>Disclaimer:</b> <i>This post does not reflect the views or policies of SoylentNews Public Benefit Corporation (SN
+        PBC), its staff, or my role as president. The opinions and statements within are my own, Michael Casadevall, and
+        neither I nor SN PBC were financially compensated for this post.</i></p>
+
+<p>There are times in life where you simply don't know where you will end up. For me, a chance encounter in Puerto Rico
+    lead to a rather interesting series of events. I have spent the previous week (October 20th-26th) attending the <a
+        href="https://meetings.icann.org/en/barcelona63">ICANN 63rd International Public Meeting</a>. For those who
+    aren't familiar with the <a href="https://icann.org/">Internet Corporation for Assigned Names and Numbers
+        (ICANN)</a>, it is essentially the not-for-profit organization that administrates the Internet root zone which
+    forms the linchpin of the modern internet, and allows domain names such as soylentnews.org to exist.</p>
+
+<p>As a fellow, I have been working to help advance policy from the perspective of Internet end-users, as well as
+    improving access to the Internet in the form of Internationalized Domain Names. For those less familiar with the
+    technical underpinnings of the Internet, I'll also talk a bit about DNS, and more of the work I am currently in the
+    process of handling at ICANN.</p>
+
+<p><b>In This Issue</b>
+</p>
+
+<ul>
+    <li>DNS - What is it?</li>
+    <li>The Internet Root Zone, Top Level Domains, and Second Level Domains</li>
+    <li>What Is ICANN?</li>
+    <li>The Fellowship Program</li>
+    <li>New Generic Top Level Domains</li>
+    <li>String Contention and Name Collisions</li>
+    <li>Internationalized Domain Names</li>
+    <li>In Closing</li>
+    <li>If You Want To Get Involved</li>
+    <li>Acknowledgements</li>
+</ul>
+
+<p><b>DNS - What is it?</b></p>
+
+<p>Before we can talk about ICANN in any fashion, we need to talk a bit about the Domain Name System, or DNS. Every
+    computer on the internet is assigned one or more numbers known as IP addresses. IP addresses take the form of
+    23.239.29.31 or 2600:3c00::f03c:91ff:fe98:90b, and are used as ways of uniquely identifying every device. Every site
+    and service has an IP address, as does your phone and computer to allow two way communication; they can be best
+    thought of telephone numbers for computers.</p>
+
+<p>Just like phone numbers, there needs to be a method to look up information based on name. In the days of old, we
+    would use the <a href="https://en.wikipedia.org/wiki/Yellow_pages">Yellow Pages</a> for this type of information.
+    For computers, our version of the yellow pages is DNS, specifically what we call A and AAAA records. For example,
+    here are two types of lookup requests for SoylentNews:</p>
+
+
+
+<p>
+<pre>
+$ nslookup
+&gt; server 8.8.8.8
+Default server: 8.8.8.8
+Address: 8.8.8.8#53
+&gt; soylentnews.org
+Server:		8.8.8.8
+Address:	8.8.8.8#53
+
+Non-authoritative answer:
+Name:	soylentnews.org
+Address: 23.239.29.31
+Name:	soylentnews.org
+Address: 2600:3c00::f03c:91ff:fe98:90b</pre>
+</p>
+
+<p>Besides basic name lookup information, DNS often contains information such as mail routing in the form of MX records,
+    or even user authentication data in the form of Hesiod TXT records. It would be fair to call DNS the worlds largest
+    distributed dynamic database. At its core, DNS is comprised of a network of worldwide servers that provide name
+    lookup services from the internet, starting from the root of a tree.</p>
+
+<p><b>The Internet Root Zone, Top Level Domains, and Second Level Domains</b></p>
+
+<p>When I said root of a tree, I wasn't being very metaphorical. Let's look a little closer at an actual domain name,
+    and break it down into its component parts, in this case, our development site at dev.soylentnews.org. For the
+    purposes of demonstration, we'll walk the domain from the top down. Each section of a domain name is divided into
+    levels separated by a period. So dev is a third level domain, soylentnews is a second level domain, and org is a top
+    level domain.</p>
+
+<p>Likewise, each of these levels points to the one higher than it. Let's ask the soylentnews domain about dev; our
+    hosting provider (and DNS servers) are hosted by Linode so we'll query them directly.</p>
+
+<p>
+<pre>
+$ nslookup
+&gt; server ns1.linode.com
+Default server: ns1.linode.com
+Address: 2400:cb00:2049:1::a29f:1a63#53
+Default server: ns1.linode.com
+Address: 162.159.27.72#53
+&gt; dev.soylentnews.org
+Server:		ns1.linode.com
+Address:	2400:cb00:2049:1::a29f:1a63#53
+
+Name:	dev.soylentnews.org
+Address: 72.14.185.204
+Name:	dev.soylentnews.org
+Address: 2600:3c00::f03c:91ff:fe6e:d0a3
+</pre>
+</p>
+
+
+<p>Notice that the "Non-authoritative answer" is missing. This is because soylentnews.org directly controls the level
+    above it. We can see the same effect if we query the .org nameservers for SoylentNews; note that we need to ask for
+    the NS record type which acts as a pointer to the next level of domain.</p>
+
+<blockquote>
+    <div>
+        <p>
+        <pre>
+$ nslookup
+&gt; server a0.org.afilias-nst.info.
+[...]
+&gt; set type=ns
+&gt; soylentnews.org
+[...]
+Authoritative answers can be found from:
+soylentnews.org	nameserver = ns1.linode.com.
+soylentnews.org	nameserver = ns3.linode.com.
+soylentnews.org	nameserver = ns2.linode.com.
+soylentnews.org	nameserver = ns4.linode.com.
+soylentnews.org	nameserver = ns5.linode.com.</pre>
+        </p>
+
+    </div>
+</blockquote>
+
+<p>Cool! We can see the five nameservers that have authoritative data for soylentnews.org. But how did I find the
+    nameserver for .org? Well, I queried the internet root zone for it.</p>
+
+<blockquote>
+    <div>
+        <p>
+        <pre>
+nslookup
+&gt; server a.root-servers.net
+Default server: a.root-servers.net
+Address: 2001:503:ba3e::2:30#53
+Default server: a.root-servers.net
+Address: 198.41.0.4#53
+&gt; set type=ns
+&gt; org
+Server:		a.root-servers.net
+Address:	2001:503:ba3e::2:30#53
+
+Non-authoritative answer:
+*** Can't find org: No answer
+
+Authoritative answers can be found from:
+org	nameserver = a0.org.afilias-nst.info.
+org	nameserver = a2.org.afilias-nst.info.
+org	nameserver = b0.org.afilias-nst.org.
+org	nameserver = b2.org.afilias-nst.org.
+org	nameserver = c0.org.afilias-nst.info.
+org	nameserver = d0.org.afilias-nst.org.
+a0.org.afilias-nst.info	internet address = 199.19.56.1
+a2.org.afilias-nst.info	internet address = 199.249.112.1
+b0.org.afilias-nst.org	internet address = 199.19.54.1
+b2.org.afilias-nst.org	internet address = 199.249.120.1
+c0.org.afilias-nst.info	internet address = 199.19.53.1
+d0.org.afilias-nst.org	internet address = 199.19.57.1
+a0.org.afilias-nst.info	has AAAA address 2001:500:e::1
+a2.org.afilias-nst.info	has AAAA address 2001:500:40::1
+b0.org.afilias-nst.org	has AAAA address 2001:500:c::1
+b2.org.afilias-nst.org	has AAAA address 2001:500:48::1
+c0.org.afilias-nst.info	has AAAA address 2001:500:b::1
+d0.org.afilias-nst.org	has AAAA address 2001:500:f::1
+</pre>
+        </p>
+
+    </div>
+</blockquote>
+
+<p>The root zone contains all information on all the top level domains, as well as the special KSK (<a
+        href="https://en.wikipedia.org/wiki/Domain_Name_System_Security_Extensions#Key_management">Key Signing Keys</a>)
+    keys that underpin the DNSSEC system. In domain names, the root zone is represented as a final '.' at the end of the
+    domain which is typically implied although there are rare technical reasons where it has to be referred to directly.
+    Now that we've discussed and slightly explored the root zone, let's talk about the organization that administrates
+    it, and the policy and rules related to the root, and the top-level domains referenced within.</p>
+
+<p><b>What is ICANN?</b></p>
+
+<p>The <a href="https://www.icann.org/history">full history of ICANN</a> is too long to recap here, but in short, ICANN
+    is a multi-stakeholder community that represents various stakeholder groups and their interests and needs. In no
+    specific order, these groups are as follows:</p>
+
+<ul>
+    <li><b>GAC</b> - Government Advisory Committee</li>
+    <li><b>SSAC</b> - Security and Stability Advisory Committee</li>
+    <li><b>RSSAC</b> - Root Server System Advisory Committee</li>
+    <li><b>GNSO</b> - Generic Names Supporting Organization</li>
+    <li><b>ccNSO</b> - Country Code Names Supporting Organization</li>
+    <li><b>CSG</b> - Commercial Stakeholder Group</li>
+    <li><b>ASO</b> - Address Supporting Organization</li>
+    <li><b>At-Large/ALAC</b> - At Large Advisory Community (Internet Endusers)</li>
+</ul>
+
+<p>That's a LOT of acronyms, groups, and organizations, and this isn't even a complete list. Each of these groups (known
+    as stakeholders) are essentially cross-sections of all internet users and work to drive policy that meet the goals
+    of their interests and charters. Other groups primarily act in an advisory role such as SSAC in evaluating impact of
+    policy changes to the ICANN board. ICANN stakeholder groups create working groups (many of which are open to the
+    public) to accomplish goals and draft policy, respond to public policy comments, and create a final report. These
+    are then followed by implementation.</p>
+
+<p>As you can plainly see, ICANN is a massive multi-headed hydra that at first is not the most user-friendly beast to
+    approach. At least from my perspective, getting involved was rather difficult. For this purpose, ICANN offers two
+    programs to help get people involved: a <a href="https://www.icann.org/fellowshipprogram">fellowship program</a> to
+    bring both those with diversity or unique skills in and the <a
+        href="https://www.icann.org/public-responsibility-support/nextgen">NextGen program</a>. I can't speak on
+    NextGen, but I can speak to the fellowship program, and my personal story in how I both got involved and the topics
+    and work I was involved in at ICANN63.
+
+</p>
+
+<p><b>ICANN Fellowship Program</b></p>
+
+<p>To talk about my experience as a fellow, we need to go back to February 2018 when I was in San Juan, Puerto Rico,
+    visiting with a friend. While I was there, I saw large banners with the ICANN name and logo and some sort of
+    conference. While I did not know the specifics at the time, what I was seeing was the ICANN61 General Policy Forum.
+    As such, I walked in off the street, registered for a badge, and sat down at a high level meeting regarding an issue
+    known as name collision hosted by the SSAC. This, and a few other meetings convinced me that becoming involved with
+    ICANN was something I was personally interested in.</p>
+
+<p>Unfortunately, getting your foot in the door with ICANN from the outside is something of a tall order. To help solve
+    this problem, ICANN offers a fellowship program to help bring both diversity and talent within the community. As
+    such, I was selected to attend ICANN63 on the basis of my position as an independent freelancer combined with strong
+    technical skills. The fellowship program, currently managed by Siranush Vardanyan, is meant to help bring people
+    into the ICANN community and guide them into position and niches where their skillsets can help. Many within ICANN
+    bring technical, legal, policy, and activism talents to the table, and it is an extremely inclusive community to say
+    the least. As was oft-repeated, 'Once a fellow, always a fellow'. Through the fellowship program, I was assigned a
+    coach, Alfredo Calderon who helped me get involved with the gTLD working groups, and help decode the maze that I
+    described above.</p>
+
+<p>The intent of the fellowship is to prepare those to attend a face-to-face meeting (in this case, ICANN63), and help
+    the fellow become active within the ICANN community. In my case, I managed to hit the ground running as in the
+    intervening months between ICANN61 and 63, I had gotten involved with the Internet Society, and several working
+    groups within the IETF (albeit it on a semi-active basis). That combined with closely following the news allowed me
+    to be productive from the start. What follows are issues that I was primarily involved with &mdash; it doesn't cover
+    some of the larger discussions such as the GDPR/WHOIS policy development sessions.</p>
+
+<p><b>New Generic Top Level Domains (gTLD) </b></p>
+
+<p>Generic top level domains are generally the most common type of TLD most people encounter, comprising <tt>.com</tt>,
+    <tt>.net</tt>, <tt>.org</tt>, etc. compared to the two letter country code TLDs (ccTLDs) such as <tt>.us</tt> or
+    <tt>.io</tt>. Back in 2005, ICANN began developing policies to allow for the creation of new gTLDs, and in 2013,
+    these new gTLDs began being added to the root zone as part of the <a href="https://newgtlds.icann.org/en/">New gTLD
+        Program</a>. Since the initial land rush and additions, ICANN has been developing new rules relating to this
+    process in the form of the <a
+        href="https://community.icann.org/display/NGSPP/New+gTLD+Subsequent+Procedures+PDP+Home">New gTLD Subsequent
+        Procedures PDP (Policy Development Process)</a> working group (known as the SubPro), which I'm a member of. I've
+    primarily worked to ensure that not for profit and smaller communities can't be outbid or driven out of the process
+    of obtaining their own gTLDs.</p>
+
+<p>Expansion of the generic TLDs help relieve strain on the already crowded <tt>.com</tt>/<tt>.org</tt>/<tt>.net</tt>
+    registries and pave the way for full internationalization of the internet (a topic I'll cover below). While there
+    have those who've felt that expanding gTLDs was a mistake, the ability to have domains such as .nyc for sites
+    relating to New York City has shown that the new gTLD program has real world benefits that we're already
+    experiencing today. However, creating and expanding gTLDs also has opened a paradox's box of sorts which involves
+    the SubPro, specifically in the the realm of string contention and name collisions.</p>
+
+<p><b>String Contention and Name Collisions</b></p>
+
+<p>In a perfect world, everyone would have one unique name and registering a new gTLD would be an easy and
+    straightforward process. Unfortunately, we don't live in that sort of world; we live in a world where the Government
+    of Brazil, and Amazon both want the <tt>.amazon</tt> TLD. This is what's known as a string contention; when multiple
+    parties want the same domain string, and part of my work within the SubPro is building and designing mechanisms for
+    handling contentions, as well as a last resort process which is fair for all parties. In the last round of gTLD
+    additions, many string contentions were solved either by private party, or through a last resort auction process. At
+    the direction of the ICANN board, the SubPro has been reviewing the results of this last round, ensuring that all
+    actors, especially smaller community-based ones have an equal chance of being given a gTLD, and making sure no one
+    can be strong-armed out of the process. I (and others within the SubPro) have been working on creating and
+    streamlining the new gTLD process, and making sure that no single party can monopolize a string by simply
+    outspending everyone. Of course, social issues aren't the only hangup when creating a new top-level domain; you can
+    have a name collision.</p>
+
+<p>Name collisions are a closely related problem dealing with the technical issues of what happens when you add a name
+    to the root zone that's already in use in other contexts. For example, the Tor network could be entirely shafted if
+    <tt>.onion</tt> was added to the root zone as it's used as a pseudo-TLD. Unfortunately, because of literally decades
+    of bad practice, poor device coding, and similar historical artifacts, it means that the root zones get thousands of
+    requests per second for bogus top level domains. As part of adding any new TLD, a review is done to determine the
+    technical impact &mdash; research by SSAC into the name collision issue as a whole is ongoing. While I'm not
+    personally involved in this work as of yet, I am interested in joining it in the near future</p>
+
+<p><b>Internationalized Domain Names (IDN)</b></p>
+
+<p>Last, but not least, the final major activity I worked on was discussions related to the internationalization of
+    domain names, and email address internationalization (EAI) with the goal of making ensuring the web is available for
+    everyone. Due to the fact that DNS was designed in 1987, it was never designed with internationalization in mind and
+    has required some arcane hacks to make it work. Let's take the string <tt>тест</tt> which is Russian for test; it
+    displays properly because we support UTF-8. However, DNS was never designed to work with 8-bit characters. Instead,
+    a system was created known as punycode. This system represents unicode in ASCII in a method that DNS can handle; so
+    the domain <tt>тест.example</tt> becomes <tt>xn--e1aybc.example</tt> which can be handled by existing tools.</p>
+
+<p>This however creates a disconnect between the displayed name (known as the U-label) and the ASCII representation
+    (A-label) of a domain name, which is known to break software that either renders domain names, or in the cases of
+    email, must amend information to its log files. It also leads to issues with SSL certificates, and other confusion
+    within the ecosystem due to poor support. While IDNs have been around for awhile, new codepoints including
+    right-to-left ones are being added that require more testing and development. I've started one of two projects to
+    help study and test IDNs, and an active participant of the Universal Acceptance mailing lists on the subject.</p>
+
+<p><b>dnscatcher and idn-root-zone</b></p>
+
+<p>As part of the meetings and other work, I've started work on two projects to help raise awareness and study ongoing
+    problems with the world of DNS by creating tools to help monitor the health of the ecosystem as a whole. The first
+    of these is a project that I'm tentatively calling <a href="https://github.com/NCommander/dnscatcher">DNS
+        Catcher</a>, and its intent is to study the perspective of the domain name system from the viewpoint of the end
+    user.</p>
+
+<p>As we know from study from data related to authoritative name servers, and the root zone, a lot of recursive
+    revolvers and end-user devices send bogus data, such as catching all missing domains with a wildcard, or sending
+    bogus requests to the root. DNS Catcher is an attempt to quantify the problem from the last mile and understand what
+    data devices are sending out. While it's still in very early proof of concept, the catcher's end goal is to compare
+    known good authorize zone data to data collected from various locations such as public access points and more so as
+    to identify bad actors within the DNS community. It's still in the early pre-alpha stage, but my initial coding
+    efforts have left me optimistic I may have an alpha version ready to go by the end of the year which will be subject
+    to its own blog post.</p>
+
+<p>The other is what I'm calling tentatively calling <a href="https://github.com/NCommander/idn-root-zone">Root Zone in
+        a Box</a>, a series of shell scripts, instructions and docker containers to automatically recreate a simulation
+    of the DNS root zone, and other core internet functionality to allow testing of potential changes to DNS, as well as
+    help study and debug various issues related to Internationalized Domain Names. Compared to dnscatacher, I've gotten
+    further on this project as it's somewhat higher priority. While likely not of interest to most as of yet, RZiaB is
+    basically designed to help validate and ensure that internationalized domain names and email address
+    internationalization works smoothly and that issues can be quickly identified and fixed using an easy-to-host
+    environment that can be quickly set up.</p>
+
+<p>I'll likely talk more of these projects in separate posts at later dates, but I invite people to comment and review
+    my work.</p>
+
+<p><b>Other Odds and Ends</b></p>
+
+<p>As with any conference, there was various interesting conversations, discussions, and round tables that you really
+    don't experience in a purely electronic environment. One of these (which was the direct inspiration for DNS catcher)
+    was discussing why some devices send bogus data (in the form of random hex strings) to the internet root zone. I
+    postulated that the answer was it was the one more-or-less sure fire way to know if you have anyone tampering with
+    your DNS data such as captive portals, restrictive firewalls, or ISPs who don't like to return NXDomain.</p>
+
+<p>Another big part are social dinners and gatherings. One personal highlight is I also had a fairly decent conversation
+    with the appointed representative to the GAC from the Holy See, dealing with domain name issues relating to the
+    Vatican. We primarily talked about working at the Vatican, the papacy's interest in ICANN, and life within the city.
+    As far as unique individuals go, this easily makes a spot on my top ten list!</p>
+
+<p><b>In Closing</b></p>
+
+<p>Although my time in Barcelona has come to an end, my involvement within ICANN is higher than ever. We're doing strong
+    work to try and keep the internet open and accessible to all, and we're always looking for anyone with an interest
+    to get involved. The Fellowship experience helped me connect with individuals that let me reach my personal goals of
+    working on the SubPro, as well as connected me to the IDN working group folks in a way that I hope to pave a new
+    cornerstone of the internet for non-English speaking individuals. There's a lot of work ahead, but I can say with
+    certainty that my work with ICANN will continue, and I look forward to what the future will hold. If you're
+    interested in my projects, comment below, or follow me on Twitter: <a
+        href="https://twitter.com/fossfirefighter">@fossfirefighter</a> where I post about my work on DNS catcher,
+    RZiaB, and other things that don't make SoylentNews... like a retroBBS hacking project.</p>
+
+<p><b>If You Want To Get Involved</b></p>
+
+<p>If what you've read interests you, and you want to get involved in ICANN yourself, a good starting place is the <a
+        href="https://atlarge-lists.icann.org/mailman/listinfo/alac-announce">alac-announce</a> mailing list which posts
+    which working groups are in progress, have meetings, and other good information, as well as joining your regional
+    At-Large community. Most working groups (WGs) don't require membership in a stakeholder group, so you can just dive
+    in; you're simply expected to familiarize yourself with the WG's previous history up to that point for the most
+    part. There is also a set of learning resources at <a href="https://learn.icann.org/#/login">learn.icann.org</a>,
+    and I'm happy to take questions here or on Twitter.</p>
+
+<p><b>Acknowledgements</b></p>
+
+<p>Before signing off, I want to personally thank several individuals who helped me get here. First, <a
+        href="https://icannwiki.org/Alfredo_Calderon">Alfredo Calderon</a>, my ICANN coach and <a
+        href="https://icannwiki.org/Siranush_Vardanyan">Siranush Vardanyan</a>, manager of the fellowship program. Both
+    were very understanding and helpful with some personal difficulties I ran into during the fellowship program and
+    both of them contributed greatly to a successful face-to-face meeting. Next, I'd like to thank <a
+        href="https://icannwiki.org/Martin_Silva_Valent">Martin Pablo Silva</a>, who continuously encouraged me to apply
+    for the Fellowship, and helped make sure my application was in tip-top shape, and last, but not least, <a
+        href="https://icannwiki.org/Thomas_Jalkanen">Dina Solveig Jalkanen</a> (who prefers to go by Thomas), who
+    introduced me to ICANN and is a close personal friend and who is was instrumental in making this possible.</p>
+
+<p>Until the next time ...</p>
+
+<p>73 de NCommander</p>
+
+<p><b>Note: This post originally appeared on <a href="https://soylentnews.org">SoylentNews</a> on <a
+    href="https://soylentnews.org/communityreviews/article.pl?sid=18/10/25/0850204">November 7th, 2018</a></b></p>
