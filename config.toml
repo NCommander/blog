@@ -60,14 +60,14 @@ enableGitInfo = true
 
 [Params.widgets]
   recent_num = 5 # Set the number of articles in the "Recent articles" widget
-  tags_counter = false # Enable counter for each tag in "Tags" widget
+  tags_counter = true # Enable counter for each tag in "Tags" widget
 
 [Params.sidebar]
   home = "right" # Configure layout for home page
   list = "left"  # Configure layout for list pages
   single = false # Configure layout for single pages
   # Enable widgets in given order
-  widgets = ["ddg-search", "recent", "categories", "taglist", "social", "languages"]
+  widgets = ["ddg-search", "recent", "social", "categories", "languages"]
 
 [Params.widgets.social]
   # Enable parts of social widget
