@@ -11,7 +11,7 @@ tags: [xenix restoration, xenix, unix, soylentnews repost]
     the OS/2 Museum, we had gotten the damaged Xenix 2.2.3c past the first hurdle of installation, and directly into a
     post-reboot crash, the cause of which (at the time) I suspected was another emulation failure.</p>
 
-<p><img src="/images/2017/xenix_part2/dreaded_z.png" alt="*"></p>
+<p><img src="/images/articles/2017/xenix_part2/dreaded_z.png" alt="*"></p>
 
 <p>Needless to say, I needed to get past this. At this point, I have been examining the raw images as best I can, and
     figuring out how the installer comes together. After a few experiments, I managed to determine a few basic facts
@@ -61,7 +61,7 @@ tags: [xenix restoration, xenix, unix, soylentnews repost]
     annoyance, the N2 file system was extremely lean overall. By using "echo *" as a poor-man's ls, I was able to get a
     list of what I did and didn't have, the /bin directory was rather ... empty.</p>
 
-<p><img src="/images/2017/xenix_part2/lean_system.png" alt="Lean System"></p>
+<p><img src="/images/articles/2017/xenix_part2/lean_system.png" alt="Lean System"></p>
 
 <p>I also found I had /etc/mount and /etc/mknod which helped, but not much overall. Deciding to charge ahead, I ran
     through the normal partitioning and formatting steps, and then rebooted again with N1, and my modified N2 boot
@@ -150,7 +150,7 @@ FD96 b666 bin/bin 1 ./dev/fd196ds18 2/61</pre>
     tracks per side. AKA, mode geometry for low/double density 3.5-inch floppies. Having divined the correct setting,
     tar could now read the disks:</p>
 
-<p><img src="/images/2017/xenix_part2/file_listing.png" alt="file listing"></p>
+<p><img src="/images/articles/2017/xenix_part2/file_listing.png" alt="file listing"></p>
 
 <p>Feeding the disks through tar, and manually executing several of the installation steps gave me a reasonable
     approximation of what the installed system should look like. Testing many of the utilities confirmed my original
@@ -163,7 +163,7 @@ FD96 b666 bin/bin 1 ./dev/fd196ds18 2/61</pre>
     file editing). After several attempts, using N1 as a boot floppy, and pointing the root argument to the HD, I got
     very close to a successful boot.</p>
 
-<p><img src="/images/2017/xenix_part2/almost_booted.png" alt="almost booted"></p>
+<p><img src="/images/articles/2017/xenix_part2/almost_booted.png" alt="almost booted"></p>
 
 <p>The important line to see here is *** cron started ***, which is one of the final steps listed in /etc/rc before
     bringing up the login prompt, and a very optimistic step at eventually getting this all working. At this point, I
@@ -175,7 +175,7 @@ FD96 b666 bin/bin 1 ./dev/fd196ds18 2/61</pre>
 
 <h3>30 Years of Copy Protection</h3>
 
-<p><img src="/images/2017/xenix_part2/fork_failure.png" alt="fork() failure"></p>
+<p><img src="/images/articles/2017/xenix_part2/fork_failure.png" alt="fork() failure"></p>
 
 <p>Well isn't that an interesting problem? That's the type of message you'd expect if someone detonated a fork bomb on
     your system.</p>
@@ -200,7 +200,7 @@ FD96 b666 bin/bin 1 ./dev/fd196ds18 2/61</pre>
     documented as a footnote in one of the Xenix 286 manuals. As such, I copied the kernel from N1 to the hard drive,
     personalized it with brand, and after a reboot ....</p>
 
-<p><img src="/images/2017/xenix_part2/and_booted.png" alt="And booted"></p>
+<p><img src="/images/articles/2017/xenix_part2/and_booted.png" alt="And booted"></p>
 
 <p>Victory.</p>
 
@@ -213,17 +213,17 @@ FD96 b666 bin/bin 1 ./dev/fd196ds18 2/61</pre>
     two sectors in /bin/init. I was somewhat in disbelief, so I pulled out dosformat, made a DOS compatible disk, and
     copied out /etc/init from the booted system.</p>
 
-<p><img src="/images/2017/xenix_part2/dosformat.png" alt="dosformat"></p>
+<p><img src="/images/articles/2017/xenix_part2/dosformat.png" alt="dosformat"></p>
 
 <p>Sure enough ...</p>
 
-<p><img src="/images/2017/xenix_part2/swiss_cheese_init.png" alt="swiss cheese init"></p>
+<p><img src="/images/articles/2017/xenix_part2/swiss_cheese_init.png" alt="swiss cheese init"></p>
 
 <p>Ugh. So my frankensteined system was booting with half of its init binary missing. Awesome. At this point though, I
     had noticed something interesting on the international supplement, specifically, a /etc/init8 binary, one that had
     the same file size as the file on N2. When I compared them side by side...</p>
 
-<p><img src="/images/2017/xenix_part2/init_binary_comparsion.png" alt="comparsion N2/I1 init binaries">
+<p><img src="/images/articles/2017/xenix_part2/init_binary_comparsion.png" alt="comparsion N2/I1 init binaries">
 </p>
 
 <p>Well isn't that interesting! A comparison of file-sizes show they're identical length, with similar (though not
@@ -232,7 +232,7 @@ FD96 b666 bin/bin 1 ./dev/fd196ds18 2/61</pre>
     missing blocks from init8 to init, and then started a fresh new VM. After feeding floppies, this time, instead of
     the dreaded Z, I got something new.</p>
 
-<p><img src="/images/2017/xenix_part2/insert_serial_number.png" alt="Insert Serial Number to Continue"></p>
+<p><img src="/images/articles/2017/xenix_part2/insert_serial_number.png" alt="Insert Serial Number to Continue"></p>
 
 <p>It would die shortly afterwards, but now I was on a mission to try and see if I could restore the media to working
     state. I already proved to myself that enough data existed to at least make a restoration attempt viable. However,

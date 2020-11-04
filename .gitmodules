@@ -1,3 +1,3 @@
-[submodule "themes/bootstrap4"]
-	path = themes/bootstrap4
-	url = https://github.com/alanorth/hugo-theme-bootstrap4-blog
+[submodule "themes/mainroad"]
+	path = themes/mainroad
+	url = https://github.com/NCommander/Mainroad

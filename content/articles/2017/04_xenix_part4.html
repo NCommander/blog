@@ -11,7 +11,7 @@ tags: [xenix restoration, xenix, unix, soylentnews repost]
         Museum</a> &mdash; we talked about mapping the damage within the existing Xenix 386 disks and successfully got
     the system to the end of installation.</p>
 
-<p><img src="/images/2017/xenix_part4/installed_base.png" alt="Installed base system"></p>
+<p><img src="/images/articles/2017/xenix_part4/installed_base.png" alt="Installed base system"></p>
 
 <p>For those new to the series, I recommend you catch up with the previous three articles:</p>
 
@@ -45,7 +45,7 @@ tags: [xenix restoration, xenix, unix, soylentnews repost]
 <p>By extracting what I could from the damaged archives, what struck me the most where the modification times of some of
     the binaries:</p>
 
-<p><img src="/images/2017/xenix_part4/modified_dates.png" alt="file modification dates" width="720"></p>
+<p><img src="/images/articles/2017/xenix_part4/modified_dates.png" alt="file modification dates" width="720"></p>
 
 <p>April 13th, 1987. Quite a bit before the files on the N disks, which date to late November 1987 to early 1988. The
     file utility (which understands x.out headers) also showed that these binaries were *not* 386 specific:</p>
@@ -216,17 +216,17 @@ uuto:    ASCII text</pre>
 
 <p>
 
-    <img src="/images/2017/xenix_part4/doscat_f6.png" alt="F6s in doscat">
+    <img src="/images/articles/2017/xenix_part4/doscat_f6.png" alt="F6s in doscat">
 
 </p>
 
 <p>Our one hint was the missing data block started with 02. Fortunately, a known copy of the Xenix development tools for
     386 2.3 has survived, and better still, it was install-able with the "custom" utility.</p>
 
-<p><img src="/images/2017/xenix_part4/corrupted_doscat.png" alt="Insert D1"></p>
-<p><img src="/images/2017/xenix_part4/manipulate_packages.png" alt="Manipulate packages screen"></p>
-<p><img src="/images/2017/xenix_part4/select_packages.png" alt="Select packages"></p>
-<p><img src="/images/2017/xenix_part4/feeding_disks.png" alt="feeding disks"></p>
+<p><img src="/images/articles/2017/xenix_part4/corrupted_doscat.png" alt="Insert D1"></p>
+<p><img src="/images/articles/2017/xenix_part4/manipulate_packages.png" alt="Manipulate packages screen"></p>
+<p><img src="/images/articles/2017/xenix_part4/select_packages.png" alt="Select packages"></p>
+<p><img src="/images/articles/2017/xenix_part4/feeding_disks.png" alt="feeding disks"></p>
 
 
 <p>The ‘hdr’ utility confirmed that the missing bit was indeed in the data segment:</p>

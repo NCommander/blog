@@ -1,0 +1,462 @@
+---
+title: "Softlanding Linux System 1.0.5"
+date: 2020-06-18T12:00:00-04:00
+draft: false
+author: NCommander
+tags: [linux, sls, softlanding, many floppies, soylentnews repost]
+thumbnail: "/images/articles/2020/softlanding_linux_system_overview/sls_install.png"
+lead: "Exploring one of the first Linux distributions"
+---
+
+<p>Well, here we go again! Coming off <a href="/articles/2020/06/the-novell-netware-experience/">the Novell
+        NetWare experience</a>, I had intended to go straight into Windows NT. After two attempts of shooting a video
+    and much swearing, I decided to shelve that project for the moment. Furthermore, a lot of the feedback from my
+    previous articles talked about early Linux.</p>
+
+<p>That gave me a thought. Why not dig out the grandfather of modern Linux distributions and put it on camera? Ladies
+    and gentlemen, let me introduce you: the Softlanding Linux System, complete with XFree86 1.2!</p>
+
+<p><iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/hUhxZT9jnHw" frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe></p>
+
+<p>Honestly, there's a lot of good and bad to say about Softlanding Linux, and while SLS is essentially forgotten, its
+    legacy birthed the concept of the Linux distribution and its bugginess also lead to the creation of both Slackware
+    and Debian. It also made me remember a lot of the <b>bad</b> that came with Linux of this era.</p>
+
+<p>Assuming the summary hasn't scared you off, get ready to write your Xconfig, strap in your Model Ms, and LOADLIN your
+    way below the fold!</p>
+
+<h3>And then Linus gave us Linux</h3>
+<p>I'm pretty sure we all know the early story of Linux, and <a
+        href="https://groups.google.com/forum/#!topic/comp.os.minix/dlNtH7RRrGA[1-25]">the post</a> to comp.os.minix
+    that started it all, but just in case:</p>
+
+<p>
+<pre>Hello everybody out there using minix -
+
+I'm doing a (free) operating system (just a hobby, won't be big and
+professional like gnu) for 386(486) AT clones. This has been brewing
+since april, and is starting to get ready. I'd like any feedback on
+things people like/dislike in minix, as my OS resembles it somewhat
+(same physical layout of the file-system (due to practical reasons)
+among other things).</pre>
+</p>
+
+<p>Linus's hobbyist project would quickly become a cornerstone of the free software movement, the beginning of the end
+    of commercial UNIX, and eventually, the core of what would power all Android smartphones today. Not bad for
+    something that was supposed to only run on a 386, right?</p>
+
+<p>Linus's Linux would go through several releases, but Linux immediately became popular because it was a UNIX-like
+    compatible kernel that wasn't tainted by AT&T code. Linux came at exactly the right moment when the world was
+    looking for a free operating system, especially after Linus embraced the GPLv2.</p>
+
+<p>To understand the implications, we need to step back for a moment. Richard Stallman, of the Free Software Foundation,
+    was still putting the pieces together to create a free-as-in speech operating system. This project was known as GNU
+    (a recursive acronym: "GNU is not UNIX") noting that while the tools and system were UNIX-like, they had no code
+    from Bell Labs and were freely available under the terms of the General Public License or GPL.</p>
+
+<p>GNU was intended to form a full operating system, but one critical component, the kernel, was missing.</p>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/kernel_diagram.png" alt="Kernel diagram"
+        width="800">
+</p>
+
+
+<p>In 1991, the BSD flavors of UNIX were tied up in the <a
+        href="https://en.wikipedia.org/wiki/UNIX_System_Laboratories,_Inc._v._Berkeley_Software_Design,_Inc.">USL v.
+        BSDi lawsuit</a>, and 386BSD was still months away from its first public release. At the time, it was unclear if
+    the BSD-derived operating systems would ever get clear of the taint from Bell Systems.</p>
+
+<p>Stallman and the Free Software Foundation had instead embraced the Mach microkernel. At the time, microkernels were
+    seen as the "future" of software development. This lead to the creation of Hurd, with its first release in 1990.
+    However, design flaws inherent to mach's design prevented Hurd from actually being useable in any meaningful way. In
+    short, the project was stalled, and it was unclear if the mach pit could be climbed out of. It was still possible to
+    use components of the GNU system such as bash on commercial UNIX systems, and MINIX.</p>
+
+<p>MINIX was the closest to a usable "free" operating system at the time. Created by <a
+        href="https://en.wikipedia.org/wiki/Andrew_S._Tanenbaum">Andrew S. Tanenbaum</a> as a teaching example, MINIX
+    was a small microkernel system that was system call compatible with 7th Edition of UNIX. However, it's origin as a
+    teaching tool presented a problem. Tanenbaum's publisher was unwilling to allow MINIX to be freely distributed, so a
+    licensing fee of ~$70 dollars was attached, with source code available. MINIX also had the advantage it ran on
+    commodity x86 hardware, and it had a small but cult following. The end result was a UNIX-like operating system with
+    source available.</p>
+
+<p>Linux, on the other hand, was not only freely distributable, but it was also as close to a drop-in replacement for
+    MINIX as far as an end-user was concerned. MINIX's userbase quickly abandoned the platform for Linux as it matured,
+    and it's few remaining users migrated to 386BSD, or one of its descents. However, Linux was not a complete system in
+    and of itself; it was just a kernel. To use the earliest versions, you had to cross-compile from UNIX or MINIX, and
+    add software to taste. In a sense, its was like <a href="http://www.linuxfromscratch.org/">Linux from Scratch</a>
+    minus the good manual.</p>
+
+<p>Softlanding would become the basis of the modern Linux distribution.</p>
+
+<h3>A Brief Note about MCC Linux</h3>
+
+<p>At this point, I was continuing to write this article when after doing a bit of fact-checking, I stumbled upon
+    <a href="https://en.wikipedia.org/wiki/MCC_Interim_Linux">MCC Interim Linux</a>, which Wikipedia claims is the first
+    Linux distribution as it predates SLS. This is technically true, but MCC Interim Linux didn't offer a package
+    manager or much in terms of add-on software.</p>
+
+<p>In that regard, SLS was much closer to what "modern" Linux distribution provides than MCC Interim. That being said,
+    it might be worth diving into in addition to the early boot disk versions of Linux in a later article.</p>
+
+<h3>Softlanding Linux System</h3>
+
+<p>What was most astounding about this project was the utter <b>lack</b> of information about Softlanding entirely. From
+    the README file, Softlanding came with a 60 page manual and was available on both ​3 1⁄2 and 5 1/4 floppy disks,
+    CD-ROM, and QIC40 tape. Copies were also available through FTP and various bulletin board systems. The last release
+    has only survived in such a form.</p>
+
+<p>Reading through the sparse README files, Softlanding primarily billed itself as providing "soft landings for DOS
+    bailouts", and a lot of the default software load seems to be converting DOS users. As I would find out, while
+    Softlanding did provide X, it was in such poor shape that it really couldn't be said to be competitive with Windows
+    of the time period.</p>
+
+<p>SLS has a reputation for being rather buggy, and both Debian and Slackware were both started due to frustration with
+    the initial project. Nonetheless, it was best described as the Ubuntu of its era in its relative ease of use, and
+    focus on being user friendly. As I found, Softlanding also provided a fair bit of effort in making Linux easier to
+    use with their mesh shell, built-in emulators, and rather complete set of software for the era.</p>
+
+<p>That being said, SLS died for a reason. To understand that reason, I needed to get it installed. To get it installed,
+    I needed working media.</p>
+
+<h3>By all your floppy disks remembered ...</h3>
+
+<p>One rather curious fact about the digital download version of Softlanding is it isn't in the form of disk images.
+    Instead, it's set of files complying with the 8.3 DOS naming scheme of the era. Only the initial boot disk, A1, is
+    provided as a raw image.</p>
+
+<p>The README file goes into more detail, and as far as I can tell, the intent was allow people to download what they
+    need, and then use DOS to create the disks. This is understandable as even in the era where floppies were common, 31
+    floppies is a bit of a tall order. To put that in context, DOS 6.2 and Windows 3.1 were 3 and 6 floppies
+    respectively. Windows 95 itself was available on 13.</p>
+
+<p>I had to convert these into a more usable form. My solution was a simple Python script that simply created each
+    high-density floppy disk image, formatted them with a FAT12 filesystem, and then mcopy the files on. This removed
+    what would have otherwise been a rather tedious process.</p>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/media_recreated.png" alt="SLS Media Recreated"></p>
+
+
+<p>The next step was figuring out how to run this. I knew from the beginning that I wanted to get X going, and I knew
+    that would be a challenge in and of itself. I also knew that early Linux couldn't use LBA addressing and needed some
+    BIOS support to find the hard disk. Sarah Walker's <a href="https://pcem-emulator.co.uk/">PCem</a> is my usual
+    weapon of choice when I need era correct emulation. It also has the advantage of running relatively close to the
+    original system speed so I could get a good idea of what performance was actually like.</p>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/award_bios_bootup.png" alt="Award BIOS Bootup"></p>
+
+
+<p>I started with an Award 486DX Clone, and 8 MiB of memory. Since PCem emulates a full system, and Linux was dependent
+    on CHS addressing, I had to set up the drive parameters manually in BIOS. I also needed to set the clock back. I had
+    found warnings that there were known issues with SLS in relation to years past 1996 due to faulty leap year
+    calculations. With BIOS set, I was ready to go.</p>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/cmos_clock.png" alt="CMOS clock"></p>
+
+
+<p>I popped disc A1 into my emulated floppy drive, and got rewarded with the LILO prompt!</p>
+
+<h3>Login: install</h3>
+
+<p>The A1 disk is actually a full live system, and even goes as far as providing "root" and "install" users depending on
+    what you need to do. Some handy notes on SLS told me I needed to partition the disk, and that meant fdisk.</p>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/fdisk.png" alt="FDISK"></p>
+
+<p>Unfortunately, my 2020 Linux brain at this point forgot it was common practice at the time to use a swap partition
+    and more than one partition for the filesystem. Instead, I just made one single large one for root, and called it
+    good. This didn't prove to be a problem in practice but it does highlight a problem with SLS. fdisk isn't exactly an
+    intuitive step and even DOS 5 and 6 will both offer to partition a hard disk graphically if needed.</p>
+
+<p>Another quirk that tripped me up is that to format a partition, the utility is mke2fs. This might be because ext2 was
+    then new, and the default file system was still Minix. That however I attribute more to not having the manual and 26
+    years since this software was released. With a tap of the power button, I was now ready to install Softlanding.</p>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/sls_install.png" alt="SLS Linux Install"></p>
+
+
+<p>Softlanding's installation process is clean and straight to the point. It's better than some other distributions even
+    in 2020. Tap the number, follow the directions and go. The only hiccup is creating a swapfile failed, but the
+    install soldiered on regardless.</p>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/a2_inserted.png" alt="A2 inserted and installing">
+</p>
+
+
+<p>That isn't to say that it went without issue. There's the fundamental problem that I'm still stuck feeding 31
+    floppies. Part of the problem is while Linux 0.99 does in fact support CD-ROMs, it doesn't support ATAPI-based
+    drives. As far as I can tell, it only supports Creative SoundBlaster CD-ROM controllers and SCSI ones. However, I
+    couldn't get SCSI to work at all. It was mostly 30 minutes of me browsing the Internet and changing disks from time
+    to time.</p>
+
+<p>That is until the installer suddenly cried out it couldn't find X2</p>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/x2_mia.png" alt="X2 404 error"></p>
+
+
+<p>X1 had been happy grinding away when the message popped on screen that X2 couldn't be found. Actually inserting X2
+    and retrying got the install going would foreshadow what happened at the end of installation. I'm still not sure
+    what happened here, but I do suspect it was one of SLS's packaging bugs coming to the forefront.</p>
+
+<p>One of the largest issues with SLS was it was just flat out buggy, and I suspect the notice for X2 was just that: a
+    bug. It wouldn't be the last.</p>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/lilo_landing.png" alt="LILO Landing"></p>
+
+
+<p>Towards the end of installation, SLS prompts to create a boot disk, and then installs LILO to hard disk. It also
+    prompts if you want to setup dual-boot with DOS. This is pretty standard for operating systems of this vintage and I
+    didn't think much about it at the time. What I didn't notice was the mistake in how SLS installs LILO. This would
+    represent the first major footgun I would run into.</p>
+
+<p>Unaware that there was a lurking time bomb, I removed the last floppy, rebooted the system, and was greeted with a
+    system hang.</p>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/hung_system.png" alt="Hung system"></p>
+
+
+<p>What had happened was a perfect storm of failure. Normally, when faced with a non-bootable disk, BIOS should give the
+    typical "Non-system disk message", or dump to BASIC depending on the vintage. However, for whatever reason, I ended
+    up with a flashing prompt. I was well aware that LILO would sometimes have issues booting from the hard disk, so I
+    didn't initially give it a second thought. I had the boot disk SLS had made during installation, and that allowed me
+    to start-up Linux.</p>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/sls_booted.png" alt="SLS booted"></p>
+
+
+<p>I should have taken a closer look at what SLS had actually done. It wasn't until much later I had actually pieced
+    together the series of events that had taken place.</p>
+
+<h3>LILO's Landing</h3>
+
+<p>Let's step back for a moment and talk about how a PC boots. In the most basic form, booting from either a floppy disk
+    or a hard disk is done by BIOS loading the first sector of a given disk into memory, then executing it. On PCs,
+    sectors are typically 512 bytes, and this forms what's known as the Master Boot Record.</p>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/mbr.png" alt="Master Boot Record"></p>
+
+
+<p>Beside the initial bootstrap code, the MBR also contains the partition map and some information on how the disk was
+    formatted. However, 512 bytes is a bit too small to do anything useful. This is where the Partition Boot Record
+    comes into play. The PBR is a secondary holding area for bootloader code, and the PBR is what gets loaded at startup
+    when a partition is marked 'active'. Microsoft's DOS MBR uses the PBR to load the rest of DOS and then eventually
+    load COMMAND.COM. This is a fairly well-documented process, but it's slightly problematic that your MBR and PBR must
+    agree with how the system is started.</p>
+
+<p>It also means that a MBR had to be installed in the first place. I had started with a blank hard disk which meant
+    there was no MBR. FDISK had written a partition table, but the actual bootstrap code portion was still NULLed out.
+    What I hadn't noticed was that SLS had installed LILO to /dev/hda1, or the partition boot record. This meant that
+    there was no MBR to start the system, leading to the hang.</p>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/where_lilo_landed.png" alt="Where LILO Landed"></p>
+
+
+<p>In general, I find PBR based booting rather unreliable at best. This is compounded by the fact that Microsoft has a
+    very bad habit of trashing boot code. My fix was to simply change lilo.conf and then re-run lilo to re-install to
+    the MBR. This let me boot from the hard disk!</p>
+
+<p>With that interlude aside, it was time to actually take a closer look at the Softlanding System itself.</p>
+
+<h3>Serial numbers filed off</h3>
+
+<p>Softlanding only provides root as a default user with no password. After loggining in, I'm greeted by this login
+    banner:</p>
+
+<p>
+<pre>Softlanding Software (604) 592-0188, gentle touchdowns from DOS bailouts.
+Welcome to Linux SLS 1.05. Type "mesh" for a menu driven interface.
+Fresh installations should use "syssetup" to link X servers, etc.</pre>
+</p>
+
+<p>The phrase "softlanding for DOS bailouts" appears on most of SLS's media, and from what I can tell, SLS was intended
+    to be that: a better DOS. This becomes <b>very</b> clear when we follow the instructions to load 'mesh'.
+</p>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/mesh.png" alt="mesh shell"></p>
+
+
+<p>If this looks familiar, it probably because you're familiar with Norton Commander for DOS or one of its clones</p>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/nc_for_dos.png" alt="Norton Commander for DOS">
+</p>
+
+
+<p>mesh is entirely something Softlanding cooked up for SLS. Source code isn't provided, and its LICENSE file states it
+    can only be distributed with SLS. One thing though has to be said is that I have to give SLS props here, this is a
+    really good way to help users soft land from DOS. Norton Commander was exceptionally popular with DOS, and I even
+    remember it holding in until Windows 95. By giving the console a decent UI with familiar functionality, you've
+    basically eliminated an entire cliff in migrating.</p>
+
+<p>I do wonder how much Softlanding was trying to mimic DOS. At no point did the installer or any official instructions
+    tell me to make another user. Although even in the era, running as root 24/7 would have been a bad practice, it
+    would have made Linux resemble DOS a lot more than it did out of the box. Once again, I don't have the manual so I
+    have no real idea how much any of this is intentional.</p>
+
+<p>However, one thing is noticeable is that the default software load is very much tailored to help those migrating from
+    DOS.</p>
+
+<h3>Softlanding from DOS</h3>
+
+<p>The first notable addition to the party is the joe editor. For those not familiar with joe, it's a clone of Wordstar.
+    For those not familiar with Wordstar, it was the emacs to WordPerfect's vi.</p>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/wordstar_on_dosemu.png" alt="Wordstar"></p>
+
+<p><b>NOTE:</b> I'm not apologizing for the above.</p>
+
+<p>Joking aside, WordStar has a rather diehard userbase and there are quite a few writers who still get by on the old
+    CP/M and DOS-based versions of WordStar. Including joe as a default editor in addition to the more common vi and
+    emacs would help those familiar with WordStar make the migration a bit easier.</p>
+
+<p>Ease of migration from DOS also shows up with DOSemu, which is included in the box. DOSemu as the name suggests is a
+    full-functioned DOS emulator. It can either work with an existing DOS partition, or with a micro hdimage. In either
+    case, you need an actual copy of DOS to use it. Linux folders can be mapped into the emulator via the LREDIR
+    command, and a compatibility list is provided.</p>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/wp51.png" alt="WordPerfect 5.1" width="800">
+</p>
+
+
+<p>WordPerfect loaded up just fine. DOOM crashed the emulator. Windows 3.0 interestingly is marked as "working in real
+    mode", but trying to install it just leads to a hang. Most Linux users might be realizing that I've been up to this
+    point tap-dancing around a rather large pain point of early Linux.
+
+<h3>Xrossing the X</h3>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/x_windows.png" alt="X-Window"></p>
+
+
+<p><b>NOTE:</b> Still not apologizing for that joke.</p>
+
+<p>If you watched the video, you might have seen the rather large failure montage that went with my attempts to get X up
+    and running.</p>
+
+<p>Let me be rather blunt about this. X was the reason that Linux on the desktop was a fracking disaster throughout the
+    90s and early 2000s. The problem isn't with the X protocol or design, it's entirely with the driver stack. While X
+    of SLS 1.0.5 may get a partial pass because it predates the VESA VBE BIOS extensions, X was an utter nightmare up
+    until Xorg finally plastered over most of the bullshit with <b>working</b> autoconfiguration.</p>
+
+<p>A lot of people are going to yell at me, and say "Oh, but graphics card vendors didn't publish docs.". Maybe that's
+    true, but even in cases where there <i>is</i> a working X server, you still have to do a lot of manual configuration
+    to get it working. Red Hat specifically went to get drivers available as free software when possible; my ThinkPad's
+    NeoMagic card has a driver due to these efforts. Remember, back in this time period, there was more choice than AMD,
+    NVIDIA or Intel GMA. It gets worse if you can believe it: X specifically also requires timing information relating
+    to the refresh rates, and arcane bullshit that no other operating system needs. EDID initially appeared in 1994, and
+    was more standardized by 1996.</p>
+
+<p>Let me give you an example of an X modeline:</p>
+
+<p>
+<pre> Modeline syntax: pclk hdisp hsyncstart hsyncend htotal vdisp vsyncstart vsyncend vtotal [flags]
+ Flags (optional): +HSync, -HSync, +VSync, -VSync, Interlace, DoubleScan, CSync, +CSync, -CSync
+
+ Modeline "1600x1200" 155 1600 1656 1776 2048 1200 1202 1205 1263
+ # (Label) (clk) (x-resolution) (y-resolution)
+ # |
+ # (pixel clock in MHz)
+</pre>
+</p>
+
+<p>This is utter bull. Games that talk to hardware directly such as the DOS-based DOOM or Duke Nukem 3D could get
+    800x600 or better. Duke3D could theoretically even go as high as 1600x1200. Windows 3.0 and 3.1, by comparison, was
+    archaic because it required you to still run SETUP to set the graphics mode and have a driver for what you
+    specifically needed.</p>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/windows_setup.png" alt="Windows SETUP"></p>
+
+
+<p>Linux ran on 386+ and higher processors. Virtual 8086 Mode is <b>there</b>; a 16-bit BIOS driver is not an excuse on
+    why this was so bad. Even if we jump ahead to 1998 when 32-bit VBE was standardized, it <b>still. didn't. work</b>.
+</p>
+
+<p>A 486 had enough horsepower to do unaccelerated X with something like fvwm without issue. While SLS had some specific
+    pain points related to X, this mess lasted well up until the 2000s. KNOPPIX was the first time I specifically
+    remember where X autodetection had a semi-decent chance of working. Most X applications on Linux were ports of
+    software originally written for UNIX. A lot of this software that assumed higher resolutions 640x480. While X can
+    run at standard VGA resolution, the default config was entirely broken and it got set in virtual desktop mode which
+    is basically unusable. Even if I fixed the resolution, a lot of apps would generate oversize windows because they
+    didn't expect non-workstation style monitors.</p>
+
+<p>I <b>eventually</b> got X working, by getting lucky by finding the right README, and a graphics card that PCem can
+    emulate. That moment of joy lasted right up when I found that the mouse didn't work. This was primarily because I
+    was too used to what modern Linux distros do and either set Xconfig correctly or have working autodetection. Mouse
+    and X driver configurations are handled by syssetup, but what it does is non-obvious and incorrect. What syssetup
+    does is rather silly. When you select either the X-Window option or Mouse option, it helpfully prompts you to select
+    a mouse driver and seemingly sets everything for you. Unless you're using a Microsoft 2-button serial mouse, the
+    default settings won't work. This is because syssetup only changes the /dev/mouse link to point to the correct
+    device. It doesn't edit Xconfig or prompts you to do so. I can only assume this was in the missing manual, but
+    behavior like this is not going to reflect well on SLS, and likely in part why it was considered so buggy.</p>
+
+<h3>And let there be FVWM!</h3>
+
+<p>With a working mouse driver, I could finally use X.</p>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/working_x.png" alt="Working X"></p>
+
+
+<p>SLS's default environment is the tried and true fvwn which is essentially a visual clone of Motif. Unfortunately,
+    even when working, X, at least as shipped by SLS, is not great. Many of the menus have links to broken or missing
+    applications. This can even be seen in the quick launch bar at the bottom which references file shares to machines
+    that don't exist.</p>
+
+<h3>Initial Conclusions</h3>
+
+<p>SLS was pretty innovative for it's time. Compared to even modern Linux distributions, it's relatively straight
+    forward, and is better than a lot of software of the era. While Linux was still a newborn project, it was already
+    making a lot of strides as a stable and useful workstation and server host. Driver compatibility quickly became
+    better as Red Hat and other companies began to involve themselves in Linux.</p>
+
+<p>As a replacement for DOS, it fulfills that role well. Since a full set of development tools came in the box,
+    including GCC, and Smalltalk, it was also pleasant to use as a hobbyist or developers system. I can't find much
+    about Softlanding Software itself, but I get the impression it was a very small company at best. One thing I will
+    note is that when compared to Debian or Slackware from this era, SLS is both simple to setup and relatively easy to
+    use.</p>
+
+<p>While Microsoft basically forced everyone out of the market through OEM agreements, Linux could have been a more
+    serious competitor on the desktop in the days before the Microsoft monopoly was fully formed if it wasn't for the
+    aforementioned issues. I would remind people that companies like Caldera and Corel did make quite a few efforts in
+    this space throughout the mid to late 90s. I can't say that Slackware or Debian, even now, put much stock in having
+    an easy migration path from Windows.</p>
+
+<p>SLS, on the other hand, provided decent online help, for example, "install.info" on the install disk gives you a step
+    by step help for every aspect of installation. mesh helped with users migrating from DOS and Norton Commander-like
+    shells. I can't blame SLS for the disaster that was Xfree86, but it didn't help matters either.</p>
+
+<p>I apologize if the above is a bit of a rant, but "usability" really wasn't a focus through the free software
+    ecosystem until Ubuntu tried with the release of Warty Warthog. I do want to explore more in this space, and I'll
+    likely be digging out Yggdrasil, early Slack and Debian, as well as the BSD series for test drives to document the
+    history. Suggestions welcome on what to try out!</p>
+
+<p>Normally, I'd end with a teaser on what is coming up next. More specifically, I want to explore more about the
+    graphical and networking aspect. However, during the video, I said if we reached 250 subscribers, I'd do a special.
+    At the time of recording, I was at 150 subs. I figured I had a few weeks/months before we hit that threshold. In the
+    24-ish hours since I posted the video, and now, my channel is nearly at 300.</p>
+
+<p>For those who didn't watch the post, you might wonder what that special is?</p>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/thinkpad_380d.png" alt="ThinkPad 380D"></p>
+
+
+<p>It's mastering SLS to actual floppy disks, and seeing if I can get SLS installed on real hardware from 1997, which is
+    three years later than SLS. I did a <a href="https://www.youtube.com/watch?v=8SBbV7Vcch0">video about this ThinkPad
+        and its history</a>, including dumping its HDD via serial but never did a writeup as I actually did was install
+    a RAM upgrade.</p>
+
+<h3>Coming up next</h3>
+
+<p>This might not sound super interesting, but I already know I'm going to have to write some kernel patches just to get
+    a basic installation going. As of the time of writing, I've had to also partially rewrite the ATA driver. Theories
+    welcome as to why!</p>
+
+<p><img src="/images/articles/2020/softlanding_linux_system_overview/boot_error.png" alt="ThinkPad boot error"></p>
+
+
+<p>I already expected this specific failure, but I suspect I'm going to have more surprises on real hardware. I don't
+    know if X will be possible. As far as I know, this laptop is entirely ISA based; no PCI. According to ThinkWiki, the
+    graphics chip is a NeoMagic MagicGraph 128V. This was a bit of a surprise as I thought this laptop had the more
+    common Cirrus Logic chips that were prevalent throughout the 90s. This chip didn't exist until a 1996-1997, and
+    while there's an X driver available, I'm not entirely sure I can port the SVGA XFree86 driver to run on it.</p>
+
+<p>Until the next time, NCommander, signing off ...</p>
