@@ -1,7 +1,7 @@
 ---
 title: "Compiling Word for Windows from OS/2 1.2"
 date: 2020-11-03T12:00:00-04:00
-draft: true
+draft: false
 author: NCommander
 categories: ["OS/2", "Word for Windows", "Retrocompile", "Computer History Museum"]
 thumbnail: "/images/articles/2020/word_for_windows_compiled_on_os2/winword_about_win2.png"
@@ -9,17 +9,18 @@ thumbnail: "/images/articles/2020/word_for_windows_compiled_on_os2/winword_about
 
 <p>After a bit of hiatus, I'm back with more retrocomputing madness. Several years ago, Microsoft donated the source
     code of Word for Windows 1.1a to the <a href="https://computerhistory.org/">Computer History Museum</a>. After a bit
-    of initial news flurry back in 2014, the topic mostly sat unnoticed. A few people, including
+    of initial news flurry back in 2014, the topic mostly sat untouched. Microsoft had been kind enough to also include
+    a full set of tools to actually compile Winword from source from both DOS and OS/2. A few people, including
     <a href="https://virtuallyfun.com/wordpress/2018/08/30/compiling-microsoft-word-1-1a-for-windows/">neozeed from
         Virtually Fun</a> managed to compile the code from source from DOS. However, no one has really investigated too
-    deep into the bowels of this codebase.</p>
+    deeply into the bowels of this codebase. Furthermore, I could find no documented evidence that anyone had attempted
+    an OS/2 build.</p>
 
-<p>When I decided to dig into Word for Windows's (or Winword for short) source code, I found more than a few surprises,
-    and decided that this was a topic that needed quite a bit more explanation. It was also a good excuse to finally
-    tackle OS/2, something that had been on my list of topics for awhile since I also noticed that there was a full set
-    of OS/2 compilation tools which lead to the genesis of this project. As it turn out, I would fall fairly far down
-    the rabbit hole before coming back up for daylight. As usual, my findings are summarized in YouTube video form, and
-    it would mean a lot of you took a look.
+<p>When I decided to dig into Word for Windows's (or Winword for short) source code, I found more than a few surprises.
+    It quickly became clear that this was a topic that needed a deeper dive. It also gave me the good excuse to finally
+    talk a bit about OS/2 which was something on my list of topics for awhile. As it turn out, I would
+    fall fairly far down the rabbit hole before coming back up for daylight. As usual, my findings are
+    summarized in YouTube video form, and it would mean a lot of you took a look.
 </p>
 
 <div style="margin: auto; text-align: center;">
@@ -28,13 +29,15 @@ thumbnail: "/images/articles/2020/word_for_windows_compiled_on_os2/winword_about
         allowfullscreen></iframe></p>
 </div>
 
+<p><b>NOTE:</b> There is errata for this video posted below.</p>
+
 <h2>Word for Windows</h2>
 
 <p>I'm really not sure how much introduction Word actually needs. It's one of the most popular word processors in
-    extensive, and I can't help but think that almost anyone has used it at one point or another. That being said, Word
-    itself started from rather modest beginnings. Although initially released in 1983, the early versions struggled to
-    find traction against WordPerfect. It was ironically the Macintosh versions that began to establish Microsoft as a
-    player in this field.</p>
+    existence, and I can't help but think that almost everyone has used it at one point or another. That being said,
+    Word itself started from rather modest beginnings. Although initially released in 1983, the early versions struggled
+    to find traction against WordPerfect and WordStar. It was ironically the Macintosh versions that began to establish
+    Microsoft as a player in this field.</p>
 
 <div style="margin: auto; text-align: center;">
     <p><img src="/images/articles/2020/word_for_windows_compiled_on_os2/word50_for_dos.png" alt="Word 5.0 for DOS" />
@@ -47,11 +50,12 @@ thumbnail: "/images/articles/2020/word_for_windows_compiled_on_os2/winword_about
     combined with Excel would form the cornerstone of the upcoming Microsoft Office. By the end of the 90s, Microsoft
     would have this entire market segment on lockdown.</p>
 
-<p>However, the early versions of Word, and especially Word for Windows, did have honest improvements over its
-    competition. To demonstrate, let's get the retail release of Word 1.1a installed, and take a look. This version
+<p>However, the early versions of Word, and especially Word for Windows, did have some compelling improvements over its
+    market incumbents. To demonstrate, let's get the retail release of Word 1.1a installed, and take a look. This
+    version
     of Word required Windows 2.1 at a minimum, although the then upcoming Windows 3.0 was recommended. Installation is
-    handled through a DOS application, which is typical of early Windows applications. Afterwords, we can jump into
-    Windows, and take a look.</p>
+    handled through a DOS application, which is typical of early Windows 1 and 2 applications. Afterward, we can jump
+    into Windows, and take a closer look.</p>
 
 <div style="margin: auto; text-align: center;">
     <p><img src="/images/articles/2020/word_for_windows_compiled_on_os2/winword_example_win2.png"
@@ -71,7 +75,7 @@ thumbnail: "/images/articles/2020/word_for_windows_compiled_on_os2/winword_about
 </div>
 
 <p>Word also provided support for integrated graphics, and the beginnings of multimedia documents through Object Linking
-    and Embedding, although this wouldn't be fully realized until later. In short, Word did provide real world
+    and Embedding, although this would not be fully realized until later. In short, Word did provide real world
     advantages over its competition. While Microsoft was accused of underhanded tactics, leading to <a
         href="https://redmondmag.com/articles/2012/07/17/judge-rules-for-microsoft-in-novell-wordperfect-antitrust-lawsuit.aspx">Microsoft
         v. Novell</a>, it's impossible to deny that Word itself was a solid competitor on its own merits.</a> </p>
@@ -87,13 +91,14 @@ thumbnail: "/images/articles/2020/word_for_windows_compiled_on_os2/winword_about
 </div>
 
 
-<p>I won't be surprised if quite a few people are wondering on why I chose OS/2 for this project. Well, there's a few
+<p>I would not be surprised if quite a few people are wondering on why I chose OS/2 for this project. Well, there's a
+    few
     reasons. The first is just compiling ontop of DOS is actually quite painful. While Microsoft included a full set of
     build tools for both DOS and OS/2, the DOS tools require oodles of conventional memory, and a fairly specific setup
     to actually get the build off the ground.</p>
 
 <p>First, the tools are hardcoded to use the 386MAX memory extender. Microsoft helpfully included that in the box, and
-    it works just fine on both DOS 3.3 and 6.2. However, because this extender is so old, DOS itself can't relocate to
+    it works just fine on both DOS 3.3 and 6.2. However, because this extender is so old, DOS itself cannot relocate to
     the UMA area, which decreases the total amount of conventional memory on the system. Attempting to use DOS=HIGH just
     leads to a system crash.
 </p>
@@ -106,8 +111,9 @@ thumbnail: "/images/articles/2020/word_for_windows_compiled_on_os2/winword_about
 
 <p>While there are unofficial hacks to use <a href="https://www.japheth.de/HX.html">HX Memory Extender</a>, I preferred
     to stay with period specific tools if possible. Even after sorting the memory manager, I still kept getting build
-    failures due to running out of memory. A lot of this is that for this era, the concept of a DOS Extender was still
-    fairly new, and ontop of that, Microsoft was still expecting OS/2 to be the future of computing.</p>
+    failures due to running out of memory. A lot of this is due to the fact that that for this era, the concept of a DOS
+    Extender was still fairly new, and ontop of that, Microsoft was still expecting OS/2 to be the future of computing.
+</p>
 
 <div style="margin: auto; text-align: center;">
     <p><img src="/images/articles/2020/word_for_windows_compiled_on_os2/dos_build_oom.png"
@@ -122,25 +128,26 @@ thumbnail: "/images/articles/2020/word_for_windows_compiled_on_os2/winword_about
     find any significant marketshare, and the vast majority of users still continuing to use DOS as their day to day
     operating system.</p>
 
-<p>It wasn't until the unexpected success of Windows 3.0 in 1990, followed by the IBM-Microsoft divorce did Microsoft
-    truly abandon OS/2 as a platform, something we'll see later on. Given the time period though, I expected that
-    Microsoft used OS/2 fairly extensively for both software development, and day-to-day usage. It's well documented
+<p>It was not until the unexpected success of Windows 3.0 in 1990, followed by the IBM-Microsoft divorce did Microsoft
+    truly abandon OS/2 as a platform, something we will see later on. Given the time period though, I expected that
+    Microsoft used OS/2 fairly extensively for both software development, and day-to-day usage. It is well documented
     that nearly all Microsoft products of that time period had OS/2 support, or a specific OS/2 version.</p>
 
 <p>Microsoft's own develoment tools also supported OS/2. In truth, while OS/2 was somewhat of a flop with general
     consumers, it did have a niche for use in software development. This is primarily because OS/2 could multitask, use
-    virtual memory, and bad code wouldn't necessarily crash the system. It also was possible to do "in-place" debugging,
+    virtual memory, and bad code would not necessarily crash the system. It also was possible to do "in-place"
+    debugging,
     instead of a multi-machine setup as required by DOS and Windows of the era. Speaking from personal usage, OS/2 is
     also quite nice for using as the basis for retrocomputing projects instead of developing directly ontop of Windows
     or DOS.</p>
 
-<p>To that end, I decided to go with OS/2 1.2, as it would have been relatively close to the time period in Winword 1.1
-    was released. This would however lead to much pain and suffering.</p>
+<p>To that end, I decided to go with OS/2 1.2, as it would have been relatively close to the time period in which
+    Winword 1.1 was released. This would however lead to much pain and suffering.</p>
 
 <h2>Half an Operating System - OS/2 1.2</h2>
 
 <p>So, in theory, installing OS/2 is simple. Insert the Install disk, boot the system, and follow the prompts. In
-    practice, I was greeting with the following ...</p>
+    practice, I was greeted with the following ...</p>
 
 <div style="margin: auto; text-align: center;">
     <p><img src="/images/articles/2020/word_for_windows_compiled_on_os2/boot_trap.png" alt="OS/2 1.2 Install Splash" />
@@ -148,9 +155,9 @@ thumbnail: "/images/articles/2020/word_for_windows_compiled_on_os2/winword_about
     <p><b>OS/2 TRAP Error on Boot</b></p>
 </div>
 
-<p>In practice, OS/2 actually is notoriously difficult to either emulate or virtualize due to it's use of features like
+<p>In practice, OS/2 actually is notoriously difficult to either emulate or virtualize due to its use of features like
     x86 rings, and segmented protected mode. The original 16-bit versions of OS/2 (1.0-1.3) compound this issue by
-    self-destructing on anything that isn't specifically what they want. In practice, OS/2 1.2 will not install on
+    self-destructing on anything that is not specifically what they want. In practice, OS/2 1.2 will not install on
     anyone system faster than a 33Mhz 386DX. The <a
         href="http://www.os2museum.com/wp/installing-os2-1-x-in-a-virtualbox-vm/">OS/2 Museum</a> has actually debugged
     this issue, and written unofficial patches to fix it. However, I decided to simply stick with slower emulation in
@@ -164,9 +171,10 @@ thumbnail: "/images/articles/2020/word_for_windows_compiled_on_os2/winword_about
 </div>
 
 <p>Installation is pretty straight forward, but there are a few things to note. First, IBM's High Performance File
-    System isn't an option yet. HPFS was the intended replacement for FAT, but it would only appear near the end of OS/2
+    System is not an option yet. HPFS was the intended replacement for FAT, but it would only appear near the end of
+    OS/2
     1.x's lifespan, and then as an optional component. Secondly is the truly abysmal hardware support. There are four
-    graphic driver <i>en total</i>.</i></p>
+    graphic driver <i>in total</i>.</i></p>
 
 <div style="margin: auto; text-align: center;">
     <p><img src="/images/articles/2020/word_for_windows_compiled_on_os2/graphics_card_list.png"
@@ -174,9 +182,10 @@ thumbnail: "/images/articles/2020/word_for_windows_compiled_on_os2/winword_about
     <p><b>OS/2 1.2 Graphic Driver List</b></p>
 </div>
 
-<p>While people off-state a lack of native OS/2 software as the major con against the system, a lack of hardware support
+<p>While people often cite a lack of native OS/2 software as the major con against the system, a lack of hardware
+    support
     was as bad if not worse. The Microsoft branded versions of OS/2 are slightly better in this regard, but OS/2's poor
-    hardware support would be a defining trait. It's also the reason why I was stuck in 640x480 16-color mode through
+    hardware support would be a defining trait. It is also the reason why I was stuck in 640x480 16-color mode through
     this entire project.</p>
 
 <p>Lack of hardware support aside, the installation finished without much fanfare, and we end up at what can be
@@ -188,9 +197,10 @@ thumbnail: "/images/articles/2020/word_for_windows_compiled_on_os2/winword_about
     <p><b>OS/2 1.2 Desktop Manager</b></p>
 </div>
 
-<p>As I stated in the YouTube video, OS/2 didn't come with much. The only real program of note is the system text
-    editor, known as E. It's safe to say that "batteries aren't included" was infact a thing that IBM did. OS/2 2.x
-    would be much improved in that regard, but in short, if you didn't have native OS/2 versions, you either had to hope
+<p>As I stated in the YouTube video, OS/2 did not come with much. The only real program of note is the system text
+    editor, known as E. It is safe to say that "batteries aren't included" was in fact a thing that IBM did. OS/2 2.x
+    would be much improved in that regard, but in short, if you did not have native OS/2 versions, you either had to
+    hope
     you could get Presentation Manager versions of your applications, or roll the dice with the DOS box.</p>
 
 <div style="margin: auto; text-align: center;">
@@ -199,25 +209,27 @@ thumbnail: "/images/articles/2020/word_for_windows_compiled_on_os2/winword_about
 </div>
 
 <p>As the intended successor to DOS, OS/2 does have some support for running DOS application. However, OS/2's reputation
-    for near perfect backwards compatibility wouldn't come until 2.0. In truth, the DOS box is somewhat of a joke.
-    Since OS/2 1.x was designed around the 286 processor, it doesn't take advantage of Virtual 8086 Mode, or any sort of
+    for near perfect backwards compatibility would not come until 2.0. In truth, the DOS box is somewhat of a joke.
+    Since OS/2 1.x was designed around the 286 processor, it does not take advantage of Virtual 8086 Mode, or any sort
+    of
     sandboxing. Instead, the processor is physically reset back to real mode which means DOS programs have to run with
-    massive performance penalities. Ontop of that DOS applications can also crash or hang the system, which negates one
+    massive performance penalities. On top of that DOS applications can also crash or hang the system, which negates one
     of the primary advantages of OS/2. Furthermore, only one DOS application can be run at a time, and only in full
     screen mode, although applications can be backgrounded, and one can return to Presentation Manager.</p>
 
-<p>I didn't spend a lot of time in DOS mode, but it's rather notable that even a well-behaving, and popular program like
+<p>I did not spend a lot of time in DOS mode, but it's rather notable that even a well-behaving, and popular program
+    like
     WordPerfect has compatibility issues. I can't imagine a world where one would attempt to use DOS mode seriously as
     shipped from IBM.</p>
 
 <p>At some point, I would like to go into the flaws and failures of OS/2 more in-depth as that would be a rather long
-    and detailed set of articles and videos. Still, let's remember why we're here, to compile Word for Windows.</p>
+    and detailed set of articles and videos. Still, let's remember why we are here: to compile Word for Windows.</p>
 
 <h2>The CHM Distribution</h2>
 
-<p>With OS/2 installed, it was time to punt the code over to OS/2. Since OS/2 still uses standard DOS FAT filesystems,
+<p>With OS/2 installed, it was time to punt the code over to OS/2. Since OS/2 still uses standard DOS FAT filesystem,
     it was fairly trivial to simply mount the virtual disk, copy the files over, and then start exploring. The first
-    thing I need to talk about though is the license. I'm going to apologize in advance, because this is something of a
+    thing I need to talk about though is the license. I am going to apologize in advance, because this is something of a
     rant.</p>
 
 <div style="margin: auto; text-align: center;">
@@ -226,29 +238,31 @@ thumbnail: "/images/articles/2020/word_for_windows_compiled_on_os2/winword_about
     <p><b>Microsoft Research License</b></p>
 </div>
 
-<p>I brought up during the video how the Winword license only allows non-commerical use, but I didn't really elaborate.
-    While I'm grateful that the Word for Windows source is legally available, the restrictive license on it really makes
+<p>I brought up during the video how the Winword license only allows non-commercial use, but I did not really elaborate.
+    While I am grateful that the Word for Windows source is legally available, the restrictive license on it really
+    makes
     it something as a poison pill. The ugly truth of the world is a lot of content, research, and even media production
-    is commercial in nature, and that audience can't touch Winword at all. Although my channel as of writing is still
-    small enough that it doesn't meet YouTube's monetization requirements, I would have still done this project because
-    I believe of the importance of documenting these sorts of things, but I know I'm in a minority in that regard.</p>
+    is commercial in nature, and that audience can not touch Winword at all. Although my channel as of writing is still
+    small enough that it does not meet YouTube's monetization requirements, I would have still done this project because
+    I believe of the importance of documenting these sorts of things, but I know I am in a minority in that regard.</p>
 <p>Even disregarding the non-commercial restriction, the inability to publish any source, binaries, or modified works is
     really pushing this. I can get that Microsoft intended this as a museum piece and in that context, maybe such
     restrictions are understandable, but I do feel like it doesn't help anyone to be so draconian. I had to do a lot of
     tap-dancing to avoid showing code snippets and a lot of "tell, not show" to work with this content at all.</p>
-<p>It's easier to comply with the license in text, but I do feel a lot of this is unnecessary. I suppose I shouldn't
+<p>It is easier to comply with the license in text, but I do feel a lot of this is unnecessary. I suppose I should not
     complain; after all, Word didn't have to get it's source code published at all, but it still grinds my gears.</p>
 
 <p>Anyway, with that rant out of the way, let's get back to the CHM distribution. The zip file has three folders, with
     the bulk of the source code being in the "Opus" directory.</p>
 
-<p>IMG: Opus layout</p>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/word_for_windows_compiled_on_os2/opus_download.png" alt="Opus File Layout" /></p>
+    <p><b>CHM Word Unpacked</b></p>
+</div>
 
 <p>Opus, as one might gather, was the code name for Winword. The source code is fairly well organized, and there are
-    decent comments within which give a pretty detailed picture of how Word was built which also helped build and
-    explain. In truth, I've only gone through a fraction of it.
-    cloc gives a pretty good look at how large this codebase actually is!</p>
-
+    decent comments within which give a pretty detailed picture of how much there actually is to Word. In truth, I've
+    only gone through a fraction of it. cloc gives a pretty good look at how large this codebase actually is!</p>
 <p>
 <pre>mcasadevall@absolution:~/src/word/Word 1.1a CHM Distribution$ cloc .
     666 text files.
@@ -288,7 +302,7 @@ SUM:                                   526          66037          71512        
     <p><b>CSL</b></p>
 </div>
 
-<p>Contrary to expectations, Winword did not ship with Microsoft C. Instead, it's C compiler is known as CSL and it's a
+<p>Contrary to expectations, Winword did not ship with Microsoft C. Instead, its C compiler is known as CSL and it's a
     truly unique beast.</p>
 
 <h2>Unexpected Findings (And Some Corrections)</h2>
@@ -300,24 +314,25 @@ SUM:                                   526          66037          71512        
     compiler to build it.</p>
 
 <p>csl however is not your run of the mill compiler. Instead of compiling to standard x86 assembly language, it compiles
-    to p-code. In fact, the entirety of Word for Windows is built into p-code, and run ontop of an interpeter. During
-    the video, I noted that this appeared to be a special environment called "EL". Since then, I've further dug into the
+    to p-code. In fact, the entirety of Word for Windows is built into p-code, and run on top of an interpreter. During
+    the video, I noted that this appeared to be a special environment called "EL". Since then, I have further dug into
+    the
     code, and discovered that EL appears to actually be part of "Embedded BASIC" which is the macro language shipped
     with Winword.</p>
 
 <div style="margin: auto; text-align: center;">
-    <p><img src="/images/articles/2020/word_for_windows_compiled_on_os2/embedded_basic.png"
-            alt="Embedded BASIC" /></p>
+    <p><img src="/images/articles/2020/word_for_windows_compiled_on_os2/embedded_basic.png" alt="Embedded BASIC" /></p>
     <p><b>Embedded BASIC</b></p>
 </div>
 
-<p>While I'm annoyed I didn't find this mistake until this write-up, I do think its rather understandable. The Winword
-    source code is very sparse of comments, and there is virtually no written documentation about it. I'll attach a
+<p>While I am annoyed I did not find this mistake until this write-up, I do think it is rather understandable. The
+    Winword
+    source code is very sparse of comments, and there is virtually no written documentation about it. I will attach a
     comment to the video, and address it directly when I create the follow up. That being said, Microsoft's use of
-    p-code doesn't appear to be unique to Winword. If nothing else, csl reports a copyright date of 1982, so it's not
+    p-code doesn't appear to be unique to Winword. If nothing else, csl reports a copyright date of 1982, so it is not
     hard to believe that Microsoft used p-code for other tools and products.</p>
 
-<p>The use of p-code isn't the only surprise though. Normal Windows programs use what are known as resource files to
+<p>The use of p-code is not the only surprise though. Normal Windows programs use what are known as resource files to
     define menus, dialog boxes, and more. Once again, Microsoft has abstracted this. A special compiler for these
     resources known as 'de' is built. It even has a character based interface for laying out dialog elements!</p>
 
@@ -330,14 +345,14 @@ SUM:                                   526          66037          71512        
 <p>In truth, aside from MASM, almost every tool in Opus appears either internal to Microsoft, or a pre-release or a port
     of another tool. For example, a native version of MARK is provided, which we saw back in <a
         href="//articles/2020/05/examining-windows-1.0-hello.c-35-years-of-backwards-compatibility/">compiling Hello
-        World for Windows 1.0 is provided as native OS/2 binary!</a></p>
+        World for Windows 1.0</a>. Here thought, it is provided as native OS/2 binary!</a></p>
 
-<p>It does make me wonder where and how Microsoft had stored the Winword 1.1a source. It's possible that this release
+<p>It does make me wonder where and how Microsoft had stored the Winword 1.1a source. It is possible that this release
     was stored with Microsoft's legal department: Raymond Chen, a Microsoft employee behind <a
         href="https://devblogs.microsoft.com/oldnewthing/">The Old New Thing</a> notes that the legal department would
-    often store and collect older versions of Microsoft products, and it wouldn't surprise me of this source was also
-    used during the discovery process of Microsoft v. Novell. While I doubt I'll ever know for sure, its interesting to
-    think about how Microsoft might have preserved this and presented it to the CHM.</p>
+    often store and collect older versions of Microsoft products, and it would not surprise me of this source was also
+    used during the discovery process of Microsoft v. Novell. While I doubt that I will ever know for sure, it is
+    interesting to think about how Microsoft might have preserved this and presented it to the CHM.</p>
 
 <p>Surprises aside, if I wanted to actually get anywhere, I still needed to get with compiling.</p>
 
@@ -348,10 +363,10 @@ SUM:                                   526          66037          71512        
     <p><b>makeopus Options</b></p>
 </div>
 
-<p>Fortunately, I wasn't entirely running blind here. Instructions for the DOS version of the build were relatively easy
+<p>Fortunately, I was not entirely running blind here. Instructions for the DOS version of the build were relatively easy
     to find, and it stood to reason that the OS/2 version of the tools were vastly similar. In short, I needed to add
     C:\OPUS\TOOLS and C:\OPUS\TOOLS\OS2 to the PATH, and create a TEMP directory. Afterwords, I could use the makeopus
-    command to kickstart the build. makeopus is similar to a Makefile generator or Microsoft's own take of a configure
+    command to kickstart the build. Makeopus is similar to a Makefile generator or Microsoft's own take of a configure
     script. It reads a special configuration file for flags and options, and generates makefiles for NMAKE based on
     those options.</p>
 
@@ -366,21 +381,21 @@ SUM:                                   526          66037          71512        
     however reveals that there is a specific "MAKEOS2" option for makeopus that's for 'Protected Mode' builds. Many
     Microsoft tools such as Microsoft C often referred to OS/2 as a Protected Mode environment, so this is consistent
     with Microsoft's terminology of the time. Adding MAKEOS2 to our build configuration file got the build going, but it
-    wasn't too long until we hit another build failure.</p>
+    was not too long until we hit another build failure.</p>
 
 <div style="margin: auto; text-align: center;">
     <p><img src="/images/articles/2020/word_for_windows_compiled_on_os2/de_sys0197.png" alt="de causing SYS1097" /></p>
     <p><b>Error Code SYS0197</b></p>
 </div>
 
-<p>In this case, it's the 'de' utility I talked about earlier dying. OS/2 has one feature I do appreicate, clear error
+<p>In this case, it is the 'de' utility I talked about earlier dying. OS/2 has one feature I do appreciate, clear error
     messages, and an extensive built-in help. By typing help sys1097, we can see what failed, and how to fix it. In this
-    case, it's the fact that 'de' needs a feature called IOPL segments to be enabled. Enabling IOPL is pretty trivial;
-    its a one line change to CONFIG.SYS, although amusingly the HELP message is accurately inaccurate, you need to use
+    case, it is the fact that 'de' needs a feature called IOPL segments to be enabled. Enabling IOPL is pretty trivial;
+    it is a one line change to CONFIG.SYS, although amusingly the HELP message is accurately inaccurate, you need to use
     IOPL=true, and not IOPL=yes</p>
 
 <div style="margin: auto; text-align: center;">
-    <p><img src="/images/articles/2020/word_for_windows_compiled_on_os2/help_sys1097.png" alt="HELP SYS0197" /></p>
+    <p><img src="/images/articles/2020/word_for_windows_compiled_on_os2/help_sys0197.png" alt="HELP SYS0197" /></p>
     <p><b>Error Code SYS1097</b></p>
 </div>
 
@@ -398,14 +413,14 @@ SUM:                                   526          66037          71512        
     <p><b>x86 Processor Rings</b></p>
 </div>
 
-<p>For the life of me, I can't figure out why a compiler needs this functionality; its possible it's trying to write
+<p>For the life of me, I can't figure out why a compiler needs this functionality; its possible it is trying to write
     some sort of diagnostic messages through to the serial port, and that functionality was copy and pasted from DOS,
-    but from what I've read about IOPL segment programming in OS/2 programming guides makes this seem unlikely. The
+    but from what I have read about IOPL segment programming in OS/2 programming guides makes this seem unlikely. The
     source code to 'de' is not available, so short of sitting several hours trying to decompile the tool, this will
-    likely remain an unsolved mystery. Still, it was a problem with an easy solution, so it didn't take too long to back
+    likely remain an unsolved mystery. Still, it was a problem with an easy solution, so it did not take too long to back
     on track.</p>
 
-<p>With that hurdle passed, the build dragged along. Unfortunately, as easy as it was to get back on track, it wasn't
+<p>With that hurdle passed, the build dragged along. Unfortunately, as easy as it was to get back on track, it was not
     long until I got to another build failure though. Annoyingly, the command output had been hidden by makeopus, so I
     couldn't see what had failed. Working backwards through the makeopus utility, I found that the entire build process
     is written out as a shell script called 'mo2.cmd'. From there, some trial and error brought me to the failing
@@ -463,7 +478,7 @@ egrep.exe: MS-DOS executable
 
 <p>At this point though, I found someone had already done the hard part for me. Back in the early 90s, <a
         href="https://www.ibiblio.org/pub/micro/pc-stuff/freedos/gnuish/gnuish.htm">the GNUish project</a> had ported
-    several <a href=http://gnu.org>GNU</a> utilities to early DOS ad OS/2, including GNU grep</a>. A member of the
+    several <a href=http://gnu.org>GNU</a> utilities to early DOS and OS/2, including GNU grep</a>. A member of the
     Virtually Fun discord group pointed this out to me, and that the <a href="https://freedos.org">FreeDOS project</a>
     had archived the lot. Some searching later, and I did indeed find a copy of egrep compiled for OS/2.</a></p>
 
@@ -481,7 +496,7 @@ egrep.exe: MS-DOS executable
     <p><b>Testing GNU egrep</b></p>
 </div>
 
-<p>A few renamed files, and we're back in business!</p>
+<p>A few renamed files later, and we're back in business!</p>
 
 <div style="margin: auto; text-align: center;">
     <p><img src="/images/articles/2020/word_for_windows_compiled_on_os2/winword_building.png" alt="Winword Compiling" />
@@ -498,9 +513,9 @@ egrep.exe: MS-DOS executable
     <p><b>Make Complete!</b></p>
 </div>
 
-<p>The question is, would it run? As far as I know, I'm the first to actually attempt building Winword on OS/2 outside
-    of Microsoft. Furthermore, the end result is a Windows binary, and we're on OS/2 so there's implied pain the arse
-    to deal with, but I think is now a good time to segway to the implied elephant in the room.</p>
+<p>The question is now, would it run? As far as I know, I am the first to actually attempt building Winword on OS/2 outside
+    of Microsoft. Furthermore, the end result is a Windows binary, and we are on OS/2 so there's implied pain the ass
+    to deal with, but I think is now a good time to segue to the implied elephant in the room.</p>
 
 <h2>Who Needs Win-OS/2?</h2>
 
@@ -509,8 +524,8 @@ egrep.exe: MS-DOS executable
     <p><b>Win-OS/2 (OS/2 2.0)</b></p>
 </div>
 <p>For those familiar with the later versions of OS/2, you might be wondering why I haven't brought up Win-OS/2. Well,
-    the answer is simple: it didn't exist yet. IBM eventually marketed OS/2 as a better Windows than Windows, and a
-    better DOS than DOS. While there was some truth to those claims, that didn't come until after the IBM-Microsoft
+    the answer is simple: it did not exist yet. IBM eventually marketed OS/2 as a better Windows than Windows, and a
+    better DOS than DOS. While there was some truth to those claims, that did not come until after the IBM-Microsoft
     divorce. At the time, OS/2 being the future was still the party line at both Microsoft and IBM, with Windows only
     being a stopgap until then.</p>
 
@@ -552,8 +567,8 @@ Running Windows from the OS/2 version 1.2 DOS Compatibility Box
      on-line document called WININI.TXT.
 </pre>
 
-<p>In truth, this isn't really that useful. Windows is stuck running in Real Mode meaning most Windows 3+ software
-    simply work work. In addition, the command line and DOS applications are locked out with a unique error message.</p>
+<p>In truth, this is not really that useful. Windows is stuck running in Real Mode meaning most Windows 3+ software
+    simply work. In addition, the command line and DOS applications are locked out with a unique error message.</p>
 
 <div style="margin: auto; text-align: center;">
     <p><img src="/images/articles/2020/word_for_windows_compiled_on_os2/windows_real_mode.png"
@@ -587,7 +602,7 @@ Running Windows from the OS/2 version 1.2 DOS Compatibility Box
 <p>PMWORD and Friends ...</p>
 
 <p>In a broader context though, it helps to talk about Winword in the larger context of the world. As previously
-    menthoned, Word was available for DOS, and there was also a version of Word for OS/2, which is also known as PMWORD.
+    mentioned, Word was available for DOS, and there was also a version of Word for OS/2, which is also known as PMWORD.
     Let's look at Word for OS/2 before we wrap this up.</p>
 
 <div style="margin: auto; text-align: center;">
@@ -632,6 +647,6 @@ Running Windows from the OS/2 version 1.2 DOS Compatibility Box
     compatibility was in fact a thing.</p>
 
 <p>That being said, this article is already extremely long, so we'll have to pick this up at a later point. I'd love to
-    hear your feedback, and if you really appreciate me, liking and subscribing to my channel does help a lot.</p>
+    hear your feedback, and hope you will like and subscriber to my channel! It really makes a difference.</p>
 
 <p>~ 73 de NCommander</p>
