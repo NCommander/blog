@@ -1,0 +1,259 @@
+---
+title: "Exploring the IBM Graphical Filesystem"
+date: 2020-12-17T12:00:00-04:00
+draft: false
+author: NCommander
+categories: ["IBM", "Preservation", "Professional Graphics Series", "Computer History Museum"]
+summary: "Sometimes when browsing eBay, you find yourself buying something just to know what it is ..."
+---
+
+<p>To be honest, I suffer from a bad case of 'curiosity killed the cat' at times. If I see something I don't understand,
+    I find myself researching it to death until I do. It should come then as no surprise that this box of IBM
+    strangeness ended up gnawing away on my soul for the better part of a month before I was finally ready to put it to
+    bed.</p>
+
+<p>IMG: GFS Box</p>
+
+<p>The name alone is already kinda interesting, and then I saw "Needs one of the following compilers", and well, all I
+    can say is: 'shut up and take my money'. Even after it arrived though, I was still no closer to solving this
+    mystery. The blurb on the front just added more questions than answers.</p>
+
+<blockquote>“[It is] an ANSI-Metafile standard for storage and transfer of professional quality graphics on a
+    file-oriented storage service. The Graphical File System provides highly portable graphics information, and
+    easy-to-use icon interface to enhance programming productivity.”</blockquote>
+
+<p>I'm fairly sure you find one could find worst explanations, but it would take some effort. That being said, it won't
+    have taken as nearly long as it did to decode this block of mysteriousness had the included documentation had
+    included something like a useful summary. I've really never seen that many pages of something that technically
+    describes something while failing to actually tell you anything useful ...</p>
+
+<p>Even the pages where it describes the Graphical File System itself really don't help ...</p>
+
+<p>IMG: GFS description</p>
+
+<p>The best I could get out of this is it had something to do with saving and loading graphics to file, but it was
+    remarkable short on details. In a broad sense, the manual could be broken up "A summary of IBM's Professional
+    Graphics Series", "The Professional Graphics Series Drivers", and finally "Metafiles: everything you wanted to know,
+    but were afraid to ask!".</p>
+
+<p>We'll go into all these points in detail, but let's talk about what I actually found in the box. As usual, my
+    findings come in YouTube form in addition to write-up, so do take a look, as does make a huge difference for me.</p>
+
+<p>EMBED: YT Player</p>
+
+<h2>What Was In The Box ...</h2>
+
+<p>Beside the manual, there were five disks, three for the Graphical File System, and two labeled 'Professional Graphics
+    Series Device Drivers'.</p>
+
+<p>IMG: GFS disks</p>
+
+<p>All five disks were healthy, and my SuperCard Pro was able to read them without issue. The first three disks had what
+    you might expect from a piece of development software: test applications, example code, and libraries for Lattice C,
+    and IBM's FORTRAN and BASIC compilers.</p>
+
+<p>The only thing that was really of note was METAFILE.EXE, which the manual calls the 'Interactive Interpreter', but it
+    also became clear that there was more than meets the eye. The remaining two disks had a bunch of files labeled VDI
+    with a number, in what can only be described as probably the worst use of 8.3 filenames I've seen in awhile.</p>
+
+<p>IMG: VDI disks</p>
+
+<p>The manual also had a fairly long setup section. It appears that the Graphical File System is built around something
+    called the Virtual Device Interface. It's here where I really began to fall down the rabbit hole.</p>
+
+<h2>Standardizing Graphics: The Graphical Kernel System</h2>
+
+<p>To be honest, what I found sorta surprised me. When most people think of early graphics, I tend to think in terms of
+    Apple's QuickDraw, Microsoft's GDI, or even Adobe's PostScript. These were the big players, and aside from Apple
+    migrating to PDF, all of them have continued to the present day. As far as graphics go, it has always seemed to be a
+    world of 'pick your own proprietary standard' So if you had asked me before if I thought that not only <a
+        href="https://www.ansi.org/">ANSI</a>, but <a href="https://iso.org/">ISO</a> as a whole had actually tried to
+    standardize graphics, I'd probably gone with "[citation needed]".
+</p>
+
+<p>IMG: citation needed</p>
+
+<p>To be fair, the GFS manual does actually talk about the Graphical Kernel System, but in such a way that it makes it
+    sound like a product, and not an actual specification. As I would find out <i>much</i> later, there is in fact a
+    reason for this.</p>
+
+<p>IMG: GFS manual scan</p>
+
+<p>Unfortunately, the actual standards themselves appear to be paywalled, but I was able to gleam some bits through
+    heavy Googling. The GKS system essentially worked as modern vector graphics do today. Instead of simply saving and
+    loading a bitmap, drawing commands are stored in a series of commands, and then rendered at runtime. This is
+    provided through Virtual Device Interface I talked about earlier.</p>
+
+<p>To be legitimately honest, I was rather surprised that this existed not only in 1984, but actually dates back as far
+    as the 70s. While vector graphics were an old concept even by the 1980s, I had always assumed that they had
+    essentially remained proprietary affairs throughout this period, and it was the only advant of larger screens that
+    eventually pushed for both standardization. That also provides a good way of actually showing the impact of what
+    something like the GKS could actually do.</p>
+
+<p>IMG: TrueType example</p>
+
+<p>The absolute best example I can give of the importance of vector graphics, and the underlying principles at the heart
+    of the Graphical Kernel System is fontfaces. Very early fonts were essentially stack images; you couldn't freely
+    resize them, you needed a given font in a given size to use it. This is obviously rather undesirable for multiple
+    reasons. Adobe created Type 1 fonts, and Apple created TrueType in an attempt to defeat this by defining fonts as a
+    series of drawing commands instead of static images. This leads to the ability to freely change and modify font
+    sizes on the fly.</p>
+
+<p>With the Graphical Kernel System (and vector systems in general), images could essentially be dynamically shaped and
+    modified for their surroundings. Want to dynamically resize a chart? Go for it. Need to zoom in to add more detail?
+    Not an issue! In short, in a vector system, you have all the information to create and change an image at any
+    resolution. This means that you can transfer images across devices and printers without risk of loosing information.
+</p>
+
+<p>That brings us to the Virtual Device Metafile format or VDM. Metafiles are essentially a <a
+        href="https://en.wikipedia.org/wiki/Serialization">serialization</a> method for storing VDI commands to disk.
+    Interestingy, the Metafile format does appear to have survived to the present day in the form as the <a
+        href="https://en.wikipedia.org/wiki/Computer_Graphics_Metafile">Computer Graphics Metafile</a> format, although
+    it doesn't appear to be binary compatible with the older VDM format. That being said, we now can understand what the
+    blurb on the front of the box is all about.</a>
+</p>
+
+<p>IMG: Blurb front</p>
+
+<p>The Graphical File System is a way to store and load metafiles. Seems straightforward enough, and neat enough to
+    check out. Let's get installing.</p>
+
+<h2>From A to Lattice C and All The Pain In-between</h2>
+<p>To go any further, it was time to install, and get our hands dirty. Given the time period, I went with an emulated PC
+    AT, PC-DOS 3.3, and an EGA card. EGA support seems to be a last minute addition, since the box doesn't menton it.
+    That's not entirely surprising because the EGA card was publicly released late 1984, so it would have just been
+    coming on the market as the Graphical File System was released. Both the manual and driver disks do directly
+    reference EGA support however.</h2>
+
+<p>IMG: The files, they be a-copying</p>
+
+<p>In addition, since I expected to do some programming, I felt a good text editor was in order. PC-DOS 3.3 only ships
+    with EDLIN, and I wanted something just a <i>tad</i> less bare bones. So, for this project, I installed Borland
+    Brief, and got to it. Brief is a pretty decent editor, and while I never used it back in the day, it seemed pretty
+    easily to pick up and runw ith. After getting it installed it was just a bit more effort to get CONFIG.SYS sorted.
+</p>
+
+<p>IMG: CONFIG.SYS sorted</p>
+
+<p>With the bare essentials taken care of, it was time to dig in a bit deeper. According to the manual, the GRID binary
+    displays a reference image. Sure enough, it rendered on the first try. I didn't notice it until comparing it to the
+    other graphics modes, but this isn't actually rendering correctly. Specifically, the image is not sitting in the
+    correct location on screen, and its cut off. The CGA drivers in contrast appear to render the test graphic better,
+    albeit it with lower color fidelity.</p>
+
+<p>IMG: GRID EGA</p>
+<p>IMG: GRID CGA</p>
+
+<p>I did try the other graphics modes, and as I menthoned in the video, the EGA monochrome one simply crashed.
+    Meanwhile, the PCjr just went and said No. To be honest, the fact that there is even a jr driver seems weird because
+    the basic VDI driver set occupies about 300 kilobytes of conventional memory. While it is possible to expand a jr
+    that far, the cost combined with the jr's iffy reputation for software compatibility made me wonder who would even
+    try it?</p>
+
+<p>IMG: IBM PCjr</p>
+
+<p>Well, beside me, but I'm doing it in the interest of historical preservation. That's my justification and I'm
+    sticking with it.</p>
+
+<p> I didn't actually notice the resolution cutoff at the time, and it was only when going back to demonstrate CGA
+    capabilities did I even realize that the image was cutoff. Once again, I don't know if this is a problem with pcem,
+    or a problem with VDI since I don't have the physical card to test it. It is possible that since this was almost
+    certainly developed on a pre-production EGA card (since the GFS product was released a few months before EGA cards
+    hit the market), its doing something wrong. It won't be the first known example of IBM-branded software having
+    incompatibles with still-to-be-released equipment (see this article on <a
+        href="https://www.os2museum.com/wp/ibm-xenix-one-step-forward-one-step-back/">Xenix 286</a>)</p>
+
+<p>The other utility on the disks was METAFILE, which the manual calls the Interactive Interpreter.</p>
+
+<p>IMG: METAFILE splash screen</p>
+
+<p>IMG: main interface</p>
+
+<p>IMG: PSGS disks</p>
+
+<p>If you've never heard of the Professional Graphics Series, or the Professional Graphical Controller, well, I can't
+    blame you.</p>
+
+<p>IMG: Professional Graphics Controller</p>
+
+<p>Both are pretty obscure pieces of IBM hardware, and they weren't meant for end consumers. IBM actually had fairly
+    large plans to turn the PC into a relatively low cost CAD workstation. To understand the full power of the PGC,
+    let's take a look at was generally available towards the tale end of 1984, when the Graphical File System was
+    released.</p>
+
+<p>From IBM itself, there was two, and soon to be four options for graphics card for your <i>official</i> IBM PC. The
+    most common options were <a href="https://en.wikipedia.org/wiki/IBM_Monochrome_Display_Adapter">Monochrome Display
+        Adapter</a> and the
+    <a href="https://en.wikipedia.org/wiki/Color_Graphics_Adapter"> Color Graphics Adapter</a>. A replacement for the
+    CGA card, the <a href="https://en.wikipedia.org/wiki/Enhanced_Graphics_Adapter">Enhanced Graphics Adapter</a> was
+    also on the
+    way to being released, To be frank, none of these cards were great for high end work for a variety of reasons. Let's
+    go through them worst
+    to best.
+</p>
+
+<p>IMG: MDA Text Mode</p>
+
+<p>In the case of the MDA, it only had text modes, and no color shading. In short, it was essentially useless for any
+    sorta of graphics work at all. The MDA card was so limited that many users with monochromic displays opted for a <a
+        href="https://en.wikipedia.org/wiki/Hercules_Graphics_Card">Hercules card</a> which did offer some monochromic
+    graphics mode. However, while the Hercules card was well supported by add-on software, it wasn't an IBM product,
+    so it wasn't offically supported by big blue.</p>
+
+<p>In short, with the MDA you could make text look nice.</p>
+
+
+<p>IMG: CGA</p>
+
+<p>Let's talk about the CGA card, and specifically, the 'Color Graphics' part of it.</p>
+
+<p>To be honest, I haven't been able to find any hard numbers on how popular the CGA card might have been at the time.
+    Nearly every major piece of software supported it, but nearly all my memories of old 5150s and the such were with
+    monochrome displays. I do think in part that's because the CGA was both more expensive, and incredibly limited in
+    what it could do.</p>
+
+<p>To reach it's full potential, an CGA card needed an RGBI monitor, and a fairly loaded PC at the time. That would have
+    cost a pretty penny, and even when fully decked out, the CGA's best isn't anything to <i>really</i> write home
+    about. Assuming that you were using a RGB monitor, the CGA card could only display four colors at a times out of a
+    palette of sixteen with a max resolution of 320x200. To add final insult to injury, the color palette couldn't be
+    freely set, you were limited to one of four options, with many applications limited to the semi-default
+    'cyan-purple-white'</p>
+
+<p>IMG: CGA 4-color</p>
+
+<p>In truth, it is possible to get more out of a CGA card, but it comes at a cost. The first option is just to abuse
+    Text Mode. The CGA card supports having it's font-map replaced while using all 16-colors. This makes it possible to
+    get a de-facto 160x100 16-color resolution. This was handy for a few games, but not really practical beyond that.
+</p>
+
+<p>IMG: PakuPaku</p>
+
+
+<p>In practice, if you wanted all 16 colors, the best you could get is 160x200 due to a quirk of how analogue TV signals
+    are generated in North America, and other NTSC regions. Since CGA cards included a composite TV hookup, it is
+    possible in theory to just use any color TV as a monitor. In practice, this doesn't work very well because a
+    composite signal. In practice, this lead to 'less than desirable' results, but it did open the door to taking
+    advantage of <a href="https://en.wikipedia.org/wiki/Composite_artifact_colors"></a>NTSC artifacting</a>.</p>
+
+<p>This technique wasn't exactly new, and Apple had used it to do color on the Apple // 8-bit line for years by this
+    point. I've heard claimed that this 16-color mode was officially supported and intended by IBM, but its not quite
+    that cut and dry. The official manual only lists the low resolution mode as supporting all 16-colors. In practice,
+    the composite color mode is implemented by simply using a higher resolution mode, and carefully grouping colors to
+    generate a palette.
+</p>
+
+<p>IMG: CGA manual</p>
+
+<p>This generates the necessary signals to cause artifacting to occur, and boom, 16-colors. However, artifacting
+    would only work if a user was using a composite signal, and, this is important mind you, lived in a NTSC region.
+    That meant that Europeans, and most of the world, who used PAL or SECAM were out of luck. There was some period
+    correct software that could actually take advantage of CGA composite coloring such as Maniac Mansion, but it was
+    more a novelty than not.
+</p>
+
+<p>IMG: AutoCARD</p>
+
+<p></p>
+<h2>PGS Drivers - The Virtual Device Interface</h2>
+
+<h2>Metafiles</h2>
