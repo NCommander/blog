@@ -1,10 +1,11 @@
 ---
 title: "Exploring the IBM Graphical Filesystem"
-date: 2020-12-17T12:00:00-04:00
+date: 2020-12-1T12:00:00-04:00
 draft: false
 author: NCommander
 categories: ["IBM", "Preservation", "Professional Graphics Series", "Computer History Museum"]
-summary: "Sometimes when browsing eBay, you find yourself buying something just to know what it is ..."
+summary: "Sometimes when browsing eBay, you find yourself buying something just to know what it is, and fall down a deep rabbit-hole doing so ..."
+thumbnail: "/images/articles/2020/graphical_file_system/gfs_in_box.jpg"
 ---
 
 <p>To be honest, I suffer from a bad case of 'curiosity killed the cat' at times. If I see something I don't understand,
@@ -12,88 +13,136 @@ summary: "Sometimes when browsing eBay, you find yourself buying something just 
     strangeness ended up gnawing away on my soul for the better part of a month before I was finally ready to put it to
     bed.</p>
 
-<p>IMG: GFS Box</p>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/gfs_in_box.jpg" alt="IBM Graphical File System" />
+    </p>
+    <p><b>IBM PC Graphical File System</b></p>
+</div>
 
-<p>The name alone is already kinda interesting, and then I saw "Needs one of the following compilers", and well, all I
-    can say is: 'shut up and take my money'. Even after it arrived though, I was still no closer to solving this
-    mystery. The blurb on the front just added more questions than answers.</p>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/back_of_box.jpg" alt="Box Rear" />
+    </p>
+    <p><b>Back of the Box</b></p>
+</div>
+
+<p>The name alone is already kinda interesting, and then I saw this closeup of the back which stated that it needs "one
+    of the following compilers", and well, all I can say is: 'shut up and take my money'. Even after it arrived though,
+    I was still no closer to solving this mystery. The blurb on the front just added more questions than answers.</p>
 
 <blockquote>“[It is] an ANSI-Metafile standard for storage and transfer of professional quality graphics on a
     file-oriented storage service. The Graphical File System provides highly portable graphics information, and
     easy-to-use icon interface to enhance programming productivity.”</blockquote>
 
-<p>I'm fairly sure you find one could find worst explanations, but it would take some effort. That being said, it won't
+<p>I'm fairly sure you find one could find worse explanations, but it would take some effort. That being said, it
+    shouldn't
     have taken as nearly long as it did to decode this block of mysteriousness had the included documentation had
-    included something like a useful summary. I've really never seen that many pages of something that technically
+    included something like a useful summary. I've really never seen that many pages of manual that technically
     describes something while failing to actually tell you anything useful ...</p>
 
 <p>Even the pages where it describes the Graphical File System itself really don't help ...</p>
 
-<p>IMG: GFS description</p>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/gfs_full_spread.png" alt="Official Product Description" />
+    </p>
+    <p><b>Graphical File System Summary</b></p>
+</div>
 
-<p>The best I could get out of this is it had something to do with saving and loading graphics to file, but it was
-    remarkable short on details. In a broad sense, the manual could be broken up "A summary of IBM's Professional
+<p>The best I could get out of this is it had something to do with saving and loading graphics to file, but the
+    documentation was
+    remarkable short on details. In a broad sense, the manual could be broken up as follows: "A summary of IBM's
+    Professional
     Graphics Series", "The Professional Graphics Series Drivers", and finally "Metafiles: everything you wanted to know,
     but were afraid to ask!".</p>
 
 <p>We'll go into all these points in detail, but let's talk about what I actually found in the box. As usual, my
     findings come in YouTube form in addition to write-up, so do take a look, as does make a huge difference for me.</p>
 
-<p>EMBED: YT Player</p>
+<p>
+<div style="margin: auto; text-align: center;">
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/gKcOqOnM-T8" frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+</div>
+</p>
 
 <h2>What Was In The Box ...</h2>
 
 <p>Beside the manual, there were five disks, three for the Graphical File System, and two labeled 'Professional Graphics
     Series Device Drivers'.</p>
 
-<p>IMG: GFS disks</p>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/gfs_disks.jpg" alt="Graphical File System Disk" />
+    </p>
+    <p><b>The five included 5.25 inch disks</b></p>
+</div>
 
 <p>All five disks were healthy, and my SuperCard Pro was able to read them without issue. The first three disks had what
     you might expect from a piece of development software: test applications, example code, and libraries for Lattice C,
     and IBM's FORTRAN and BASIC compilers.</p>
 
 <p>The only thing that was really of note was METAFILE.EXE, which the manual calls the 'Interactive Interpreter', but it
-    also became clear that there was more than meets the eye. The remaining two disks had a bunch of files labeled VDI
-    with a number, in what can only be described as probably the worst use of 8.3 filenames I've seen in awhile.</p>
+    also became clear that there was more than meets the eye. The remaining two disks had the VDI subsystem, followed by
+    a bunch of SYS files with one of the worst uses of 8.3 filenames that I've seen in awhile.</p>
 
-<p>IMG: VDI disks</p>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/vdi_files.png" alt="VDI Files" />
+    </p>
+    <p><b>Professional Graphics Series Disk 2 Files</b></p>
+</div>
 
 <p>The manual also had a fairly long setup section. It appears that the Graphical File System is built around something
     called the Virtual Device Interface. It's here where I really began to fall down the rabbit hole.</p>
 
 <h2>Standardizing Graphics: The Graphical Kernel System</h2>
 
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/iso_standard.png" alt="ISO 7942" />
+    </p>
+    <p><b>Professional Graphics Series Disk 2 Files</b></p>
+</div>
+
+
 <p>To be honest, what I found sorta surprised me. When most people think of early graphics, I tend to think in terms of
     Apple's QuickDraw, Microsoft's GDI, or even Adobe's PostScript. These were the big players, and aside from Apple
     migrating to PDF, all of them have continued to the present day. As far as graphics go, it has always seemed to be a
-    world of 'pick your own proprietary standard' So if you had asked me before if I thought that not only <a
-        href="https://www.ansi.org/">ANSI</a>, but <a href="https://iso.org/">ISO</a> as a whole had actually tried to
+    world of 'pick your own proprietary standard'. So if you had asked me before if I thought that not only <a
+        href="https://www.ansi.org/">ANSI</a> but <a href="https://iso.org/">ISO</a> as a whole had actually tried to
     standardize graphics, I'd probably gone with "[citation needed]".
 </p>
 
-<p>IMG: citation needed</p>
+<div style="margin: auto; text-align: center;">
+    <p><img src="https://imgs.xkcd.com/comics/wikipedian_protester.png" alt="[citation needed]]" />
+</div>
 
 <p>To be fair, the GFS manual does actually talk about the Graphical Kernel System, but in such a way that it makes it
     sound like a product, and not an actual specification. As I would find out <i>much</i> later, there is in fact a
     reason for this.</p>
 
-<p>IMG: GFS manual scan</p>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/ibm_pc_graphical_kernel_system.png"
+            alt="Graphical Kernel System in the GFS Manual" />
+    </p>
+    <p><b>Graphical Kernel System in the GFS Manual</b></p>
+</div>
 
 <p>Unfortunately, the actual standards themselves appear to be paywalled, but I was able to gleam some bits through
     heavy Googling. The GKS system essentially worked as modern vector graphics do today. Instead of simply saving and
     loading a bitmap, drawing commands are stored in a series of commands, and then rendered at runtime. This is
-    provided through Virtual Device Interface I talked about earlier.</p>
+    provided through Virtual Device Interface that I talked about earlier.</p>
 
-<p>To be legitimately honest, I was rather surprised that this existed not only in 1984, but actually dates back as far
+<p>Actually, I was rather surprised that this existed not only in 1984, but actually dates back as far
     as the 70s. While vector graphics were an old concept even by the 1980s, I had always assumed that they had
-    essentially remained proprietary affairs throughout this period, and it was the only advant of larger screens that
-    eventually pushed for both standardization. That also provides a good way of actually showing the impact of what
-    something like the GKS could actually do.</p>
+    essentially remained proprietary affairs throughout this period. That also provides a good way of actually showing
+    the impact of what something like the GKS and vectorized graphics could actually do.</p>
 
-<p>IMG: TrueType example</p>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/true_type_example.png" alt="TrueType Sizing Example" />
+    </p>
+    <p><b>TrueType Sizing Example</b></p>
+</div>
 
 <p>The absolute best example I can give of the importance of vector graphics, and the underlying principles at the heart
-    of the Graphical Kernel System is fontfaces. Very early fonts were essentially stack images; you couldn't freely
+    of the Graphical Kernel System is fontfaces. Very early fonts were essentially bitmapped images; you couldn't freely
     resize them, you needed a given font in a given size to use it. This is obviously rather undesirable for multiple
     reasons. Adobe created Type 1 fonts, and Apple created TrueType in an attempt to defeat this by defining fonts as a
     series of drawing commands instead of static images. This leads to the ability to freely change and modify font
@@ -107,153 +156,395 @@ summary: "Sometimes when browsing eBay, you find yourself buying something just 
 
 <p>That brings us to the Virtual Device Metafile format or VDM. Metafiles are essentially a <a
         href="https://en.wikipedia.org/wiki/Serialization">serialization</a> method for storing VDI commands to disk.
-    Interestingy, the Metafile format does appear to have survived to the present day in the form as the <a
+    Interestingly, the Metafile format does appear to have survived to the present day as the <a
         href="https://en.wikipedia.org/wiki/Computer_Graphics_Metafile">Computer Graphics Metafile</a> format, although
     it doesn't appear to be binary compatible with the older VDM format. That being said, we now can understand what the
-    blurb on the front of the box is all about.</a>
-</p>
+    blurb on the front of the box is all about - The Graphical File System is a way to store and load metafiles. Seems
+    straightforward enough, and neat enough to check out. Let's get installing.</p>
 
-<p>IMG: Blurb front</p>
+<h2>From A to Lattice C and All The Pain In-Between</h2>
+<p>Given the time period, for installation, I went with an emulated PC AT, PC-DOS 3.3, and an EGA card. EGA support
+    seems to be a last minute addition, since the box doesn't menton it. That's not entirely surprising because the EGA
+    card was publicly released late 1984, so it would have just been coming on the market as the Graphical File System
+    was released. Both the manual and driver disks do directly reference EGA support however.</h2>
 
-<p>The Graphical File System is a way to store and load metafiles. Seems straightforward enough, and neat enough to
-    check out. Let's get installing.</p>
-
-<h2>From A to Lattice C and All The Pain In-between</h2>
-<p>To go any further, it was time to install, and get our hands dirty. Given the time period, I went with an emulated PC
-    AT, PC-DOS 3.3, and an EGA card. EGA support seems to be a last minute addition, since the box doesn't menton it.
-    That's not entirely surprising because the EGA card was publicly released late 1984, so it would have just been
-    coming on the market as the Graphical File System was released. Both the manual and driver disks do directly
-    reference EGA support however.</h2>
-
-<p>IMG: The files, they be a-copying</p>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/files_copying.png" alt="Copying GFS Disks to C>" />
+    </p>
+    <p><b>Copying Disks Over</b></p>
+</div>
 
 <p>In addition, since I expected to do some programming, I felt a good text editor was in order. PC-DOS 3.3 only ships
     with EDLIN, and I wanted something just a <i>tad</i> less bare bones. So, for this project, I installed Borland
     Brief, and got to it. Brief is a pretty decent editor, and while I never used it back in the day, it seemed pretty
-    easily to pick up and runw ith. After getting it installed it was just a bit more effort to get CONFIG.SYS sorted.
+    easy to pick up and run with. After getting it installed it was just a bit more effort to get CONFIG.SYS sorted.
 </p>
 
-<p>IMG: CONFIG.SYS sorted</p>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/config_sys_edited.png" alt="Editing CONFIG.SYS" />
+    </p>
+    <p><b>CONFIG.SYS Edited for VDI Drivers</b></p>
+</div>
 
 <p>With the bare essentials taken care of, it was time to dig in a bit deeper. According to the manual, the GRID binary
     displays a reference image. Sure enough, it rendered on the first try. I didn't notice it until comparing it to the
     other graphics modes, but this isn't actually rendering correctly. Specifically, the image is not sitting in the
     correct location on screen, and its cut off. The CGA drivers in contrast appear to render the test graphic better,
-    albeit it with lower color fidelity.</p>
+    albeit with lower color fidelity.</p>
 
-<p>IMG: GRID EGA</p>
-<p>IMG: GRID CGA</p>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/grid_reference.png" alt="GRID in 16-color EGA" />
+    </p>
+    <p><b>GRID rendered in 16 color EGA 640x350 Mode</b></p>
+</div>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/grid_4_color_cga.png" alt="GRID in 4 color CGA" />
+    </p>
+    <p><b>GRID rendered in 4 color CGA 320x200 Mode</b></p>
+</div>
 
-<p>I did try the other graphics modes, and as I menthoned in the video, the EGA monochrome one simply crashed.
+<p>I did try the other graphics modes, and as I mentioned in the video, the EGA monochrome one simply crashed.
     Meanwhile, the PCjr just went and said No. To be honest, the fact that there is even a jr driver seems weird because
     the basic VDI driver set occupies about 300 kilobytes of conventional memory. While it is possible to expand a jr
     that far, the cost combined with the jr's iffy reputation for software compatibility made me wonder who would even
     try it?</p>
 
-<p>IMG: IBM PCjr</p>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/pcjr_booting_up.png"
+            alt="PCjr Booting Up. Note The 16-color Graphics" />
+    </p>
+    <p><b>PCjr Booting Up. Note The 16-color Graphics</b></p>
+</div>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/pcjr_grid_fail.png" alt="PCjr Grid Failure" />
+    </p>
+    <p><b>PCjr GRID Failure</b></p>
+</div>
 
-<p>Well, beside me, but I'm doing it in the interest of historical preservation. That's my justification and I'm
+<p>Well, besides me. But I'm doing it in the interest of historical preservation. That's my justification and I'm
     sticking with it.</p>
 
-<p> I didn't actually notice the resolution cutoff at the time, and it was only when going back to demonstrate CGA
-    capabilities did I even realize that the image was cutoff. Once again, I don't know if this is a problem with pcem,
+<p>I didn't actually notice the resolution cutoff at the time, and it was only when going back to demonstrate CGA
+    capabilities did I even realize that the image was cutoff. Once again, I don't know if this is a problem with PCem,
     or a problem with VDI since I don't have the physical card to test it. It is possible that since this was almost
     certainly developed on a pre-production EGA card (since the GFS product was released a few months before EGA cards
     hit the market), its doing something wrong. It won't be the first known example of IBM-branded software having
     incompatibles with still-to-be-released equipment (see this article on <a
         href="https://www.os2museum.com/wp/ibm-xenix-one-step-forward-one-step-back/">Xenix 286</a>)</p>
 
-<p>The other utility on the disks was METAFILE, which the manual calls the Interactive Interpreter.</p>
+<p>The other utility on the disks was METAFILE, which the manual calls the Interactive Interpreter. At first glance, it
+    looks like some sort of drawing application, but looks here are deceptive.</p>
 
-<p>IMG: METAFILE splash screen</p>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/metafile_splash_screen.png" alt="METAFILE Splash Screen" />
+    </p>
+    <p><b>The Interactive Interpreter Splash Screen</b></p>
+</div>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/metafile_main_screen.png" alt="METAFILE Main Interface" />
+    </p>
+    <p><b>The Interactive Interpreter Main Interface</b></p>
+</div>
 
-<p>IMG: main interface</p>
-
-<p>IMG: PSGS disks</p>
-
-<p>If you've never heard of the Professional Graphics Series, or the Professional Graphical Controller, well, I can't
-    blame you.</p>
-
-<p>IMG: Professional Graphics Controller</p>
-
-<p>Both are pretty obscure pieces of IBM hardware, and they weren't meant for end consumers. IBM actually had fairly
-    large plans to turn the PC into a relatively low cost CAD workstation. To understand the full power of the PGC,
-    let's take a look at was generally available towards the tale end of 1984, when the Graphical File System was
-    released.</p>
-
-<p>From IBM itself, there was two, and soon to be four options for graphics card for your <i>official</i> IBM PC. The
-    most common options were <a href="https://en.wikipedia.org/wiki/IBM_Monochrome_Display_Adapter">Monochrome Display
-        Adapter</a> and the
-    <a href="https://en.wikipedia.org/wiki/Color_Graphics_Adapter"> Color Graphics Adapter</a>. A replacement for the
-    CGA card, the <a href="https://en.wikipedia.org/wiki/Enhanced_Graphics_Adapter">Enhanced Graphics Adapter</a> was
-    also on the
-    way to being released, To be frank, none of these cards were great for high end work for a variety of reasons. Let's
-    go through them worst
-    to best.
+<p>All this application is a way to display multiple metafiles and lay them out. Files can be rendered on
+    screen, or sent to a printer or plotter. To be honest, I'm really not certain how this is useful. While you could
+    (theoretically) lay out multiple metafiles for printing, and there's no doubt that someone indeed used the
+    Interactive Interpreter to do so, without any way to tweak or edit images, it seems very limited in utility. You
+    can't even save or load layouts. If it was meant as an example application, then they could at least included the
+    source code to it.
 </p>
 
-<p>IMG: MDA Text Mode</p>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/laying_out_metafiles.png"
+            alt="Laying Out Metafiles to be Rendered" />
+    </p>
+    <p><b>Laying out metafiles to be rendered</b></p>
+</div>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/rendered_metafiles.png" alt="Resulting Render" />
+    </p>
+    <p><b>Rendered metafiles</b></p>
+</div>
 
-<p>In the case of the MDA, it only had text modes, and no color shading. In short, it was essentially useless for any
-    sorta of graphics work at all. The MDA card was so limited that many users with monochromic displays opted for a <a
-        href="https://en.wikipedia.org/wiki/Hercules_Graphics_Card">Hercules card</a> which did offer some monochromic
-    graphics mode. However, while the Hercules card was well supported by add-on software, it wasn't an IBM product,
-    so it wasn't offically supported by big blue.</p>
+<p>At this point, I thought most of the meat and potatoes of this package were based in the programming library, but
+    just
+    trying to get a working environment led to an entirely different set of issues.</p>
+
+<p>The Graphical File System ships with development libraries for four compilers, Lattice C 2.0, IBM Fortran Compiler,
+    IBM's Professional Fortran Compiler, and IBM's BASIC compiler. I legitimately don't know what the difference
+    is between the two Fortran compilers, but in this case, it's a bit academic. The largest problem is that these
+    really are the only compilers supported for one simple reason: the libraries are not in the OMF format!</p>
+
+<p>To be honest, this was a little surprising. For the most part, development libraries and tools for x86 have been
+    standardized around <a href="https://en.wikipedia.org/wiki/Relocatable_Object_Module_Format">Intel's Object Module
+        Format</a>. OMF is ancient, it was already on version 4.0 in 1981. Instead, the libraries appear to be in some
+    sort of proprietary format specific to each compiler. I had somewhat hoped that I might be able to use OpenWatcom in
+    addition to period specific tools, but obviously, this wasn't meant to be.</p>
+
+<p>To complicate issues, I had numerous issues with Lattice C. From what I have found, Lattice C wasn't exactly a
+    well-regarded product, so it's perhaps unsurprising that I had some issues. To start off, the surviving
+    documentation appears at best incomplete. While the scanned manuals do talk about the compiler components, and
+    overall
+    operation, there's no installation instructions or similar to be found here.</p>
+
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/lc_failed_install.png"
+            alt="Failed Lattice C Installation" />
+    </p>
+    <p><b>This failed Lattice C installation dumped files everywhere</b></p>
+</div>
+
+<p>Installation is handled through a series of batch files that have no error checking. Even after getting Lattice C
+    installed 'properly' I still had numerous issues. First off, the IBM PC Linker was missing-in-action. This is at
+    least understandable, when Lattice C 2.1 shipped in 1982, LINK.EXE was still included standard on the DOS disks.
+    There's no reason for the compiler to <i>not</i> expect that the system provided linker is MIA. To make life even
+    easier, the Graphical File System actually shipped with an updated LINK.EXE so I didn't even have to go digging
+    through old archives to find a copy. Yay for usability!</p>
+
+<p>Unfortunately, that's where the good ends. The compiler gives very terse error messages. For example, when trying to
+    compile HELLO.C, I found that Lattice C often gave a "File Not Found" error, but didn't clearly indicate that it
+    couldn't find stdio.h. This lead me down a rathole that made me believe for awhile that Lattice C's subdirectory
+    support was buggy. It took me nearly a full day of fiddling to actually understand how quirky this compiler is. Even
+    by early 80s standards, this is pretty horrid.</p>
+
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/lc_file_not_found.png"
+            alt="Failed Lattice C Installation" />
+    </p>
+    <p><b>Hello World build failing because Lattice C couldn't find stdio.h</b></p>
+</div>
+
+<p>Even after resolving this, I still had larger problems: I couldn't get CMETA to link with the showmetc example code
+    due to numerous issues. The first is that the Graphical File System was coded for Lattice C 2.0, and I was using 2.1
+    (which was the closest archived version). Even after resolving the initial hurdles, I had multiple link failures
+    trying to get everything to build.</p>
+
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/link_failed.png" alt="Failure to link SHOWMETC" />
+    </p>
+    <p><b>Failure to link SHOWMETC</b></p>
+</div>
+
+<p>It actually got to the point that I thought I was going to need to write-off Lattice C entirely, and it was around
+    here I ended up installing IBM Fortran, which is amusing on the basis that it has a specific installation flag
+    asking if you were on DOS 2.0+ or higher!</p>
+
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/ibm_fortran_installation.png"
+            alt="SETUP.BAT for IBM FORTRAN 2.0" />
+    </p>
+    <p><b>SETUP.BAT for IBM FORTRAN 2.0</b></p>
+</div>
+
+<p>I did manage to get the Fortran example to build with relatively little fanfare, but I really didn't want to code in
+    FORTRAN if I could avoid it. Ultimately, I did work out the very long set of linker objects to build with Lattice C
+    2.1, but I was not entirely sure everything was working right.</p>
+
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/buildc_bat.png"
+            alt="Lattice C 2.1 Commands for SHOWMETC.C" />
+    </p>
+    <p><b>Lattice C 2.1 Commands for SHOWMETC.C</b></p>
+</div>
+
+<p>For one, the reference image just doesn't seem to be rendering correctly. This could be due to differences in how
+    GRID and SHOWMET{C|F} are coded. I also had issues related to timing loops; specifically, the demo code in
+    both C and FORTRAN wants to pause before advancing to the next time; for the C code, the pause is handed through a
+    for loop counting to 100,000. It's possible that improvements to the codegen in both Lattice C 2.1 made this run
+    faster, but it doesn't explain why the FORTRAN code also appears to run too fast. As a reminder, I am running this
+    on
+    an (emulated) IBM PC AT which is a period correct machine for this software so I'm still surprised at this.</p>
+
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/showmetc.png"
+            alt="SHOWMETC - Note that the image renders differently than under GRID" />
+    </p>
+    <p><b>SHOWMETC - Note that the image renders differently than under GRID</b></p>
+</div>
+
+<p>It's shortly after getting the demonstration code compiling that I began to realize that something seemed missing ...
+</p>
+
+<p>If we look at the manual's reference, there are 15 functions in total for the Graphical File System, all of which
+    handle opening and rendering of metafiles. Aside from the special 'Virtual Device Metafile' VDI driver, there isn't
+    even a way to <b>create</b> a Metafile out of the box: I had to use Harvard Graphics to make the examples we've seen
+    up to this point.</p>
+
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/function_table_of_contents.png" alt="List of Functions" />
+    </p>
+    <p><b>List of Functions</b></p>
+</div>
+
+<h2>A Convoluted Jigsaw Puzzle</h2>
+<p>To put it fairly bluntly, figuring out anything beyond this point was an exercise of frustration. I knew I was
+    already dealing with some fairly obscure topics, but the utter lack of information was pretty astounding. A lot of
+    what I initially found was based on research of the Graphical Kernel System, and the Professional Graphics Series
+    described in the manual. I touched on these earlier, but it now time to go far more in-depth. To that end, I need to
+    introduce one other piece of IBM history: the Professional Graphics Controller.
+</p>
+<p>If you've never heard of the Professional Graphics Series, or the Professional Graphics Controller, well, I can't
+    blame you.</p>
+
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/pgc_card.jpg" alt="The Professional Graphics Controller" />
+    </p>
+    <p><b>The Professional Graphics Controller</b></p>
+</div>
+
+<p>Both are pretty obscure pieces of IBM history, and they weren't meant for end consumers. IBM actually had fairly
+    large plans to turn the PC into a relatively low cost CAD workstation. The Professional Graphics Series, and
+    the PGC card were the means to that end, and for a time, they represented the absolute best you could get out of an
+    IBM PC machine. To understand the full impact and importance of the PGC, let's take a look at what IBM was offering
+    at the time. Assuming we go with the most commonly available graphics card supported by IBM, we had essentially five
+    standards: MDA, CGA, the PGC, and the soon-to-be-released EGA. Let's take them one at a time:
+</p>
+
+
+<p>Starting from least capable to most capable, let me introduce IBM's official Monochrome Display Adapter, or MDA card.
+</p>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/ibm_mda.jpg"
+            alt="IBM Monochrome Display and Print Adapter" />
+    </p>
+    <p><b>IBM Monochrome Display and Print Adapter</b></p>
+</div>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/mda_font_example.png" alt="MDA Font Example" />
+    </p>
+    <p><b>MDA Font Example</b></p>
+</div>
+<p>Capable of doing 80 columns text modes, and pretty much nothing else, the MDA graphics card was pretty popular simply
+    on the basis that it was ideal for text based work. It was also one of the two graphics choices that IBM had
+    released with the IBM PC 5150 (along with CGA), and thus was by definition compatible with virtually everything.
+    That being said, it was entirely a one trick pony. The MDA didn't offer any sort of graphics modes or even anything
+    beyond 2-bit black and white coloring. Despite its limitations, the MDA tended to be pretty popular, and I generally
+    remember more computers with an MDA adapter than CGA. This is due to the fact that the CGA card tended to be fairly
+    lackluster in text modes, and often ran in 40 columns mode due to limitations of many color monitors of the era.</p>
 
 <p>In short, with the MDA you could make text look nice.</p>
 
 
-<p>IMG: CGA</p>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/ibm_cga.jpg"
+            alt="The IBM Color/Graphics Monitor Adapter" />
+    </p>
+    <p><b><a href="http://minuszerodegrees.net/5162/cards/5162_cards.htm">MDA Font Example</a></b></p>
+</div>
 
-<p>Let's talk about the CGA card, and specifically, the 'Color Graphics' part of it.</p>
+<p>The other officially IBM sanctioned graphcis cards was the CGA card. More specifically, let's dig into the 'Color
+    Graphics' part of it.</p>
 
-<p>To be honest, I haven't been able to find any hard numbers on how popular the CGA card might have been at the time.
-    Nearly every major piece of software supported it, but nearly all my memories of old 5150s and the such were with
-    monochrome displays. I do think in part that's because the CGA was both more expensive, and incredibly limited in
-    what it could do.</p>
+<p>Even in vintage tech circles, people don't tend to fondly remember CGA cards. Technically speaking, it's capabilities
+    weren't bad for the period in which it was introduced. With its multiple graphics and text modes, the CGA card was
+    at least capable of doing some interesting things. However, the physical CGA card was hamstrung by low memory, and
+    very low bandwidth. Even putting that aside, it was difficult to reach the CGA's full graphics potential on many PCs
+    of the era.</p>
 
 <p>To reach it's full potential, an CGA card needed an RGBI monitor, and a fairly loaded PC at the time. That would have
     cost a pretty penny, and even when fully decked out, the CGA's best isn't anything to <i>really</i> write home
-    about. Assuming that you were using a RGB monitor, the CGA card could only display four colors at a times out of a
-    palette of sixteen with a max resolution of 320x200. To add final insult to injury, the color palette couldn't be
-    freely set, you were limited to one of four options, with many applications limited to the semi-default
-    'cyan-purple-white'</p>
+    about. To put this in context: many 8-bit micros of the era could general match or outclass it. Even for the period,
+    the only thing that was semi-unique to it was the bitmap 640x200 2-color mode.</p>
 
-<p>IMG: CGA 4-color</p>
+<p>Assuming you actually wanted the "color" part of color graphics, the CGA card was not generally capable of high
+    resolution images. At an absolute best, assuming that you were using a RGB monitor, the CGA card could only display
+    four colors at a times out of a palette of sixteen with a max resolution of 320x200. To add final insult to injury,
+    the color palette couldn't be freely set, you were limited to relatively small set of options, ontop of which that
+    many applications were further limited to the semi-default 'cyan-purple-white'.</p>
 
-<p>In truth, it is possible to get more out of a CGA card, but it comes at a cost. The first option is just to abuse
-    Text Mode. The CGA card supports having it's font-map replaced while using all 16-colors. This makes it possible to
-    get a de-facto 160x100 16-color resolution. This was handy for a few games, but not really practical beyond that.
-</p>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/keen_cga_title.png" alt="Commander Keen Title in CGA" />
+    </p>
+    <p><b>Commander Keen Title in CGA</b></p>
+</div>
 
-<p>IMG: PakuPaku</p>
+<p>While it is technically possible to get more out of a CGA card, in general, you start running into numerous hardware
+    limitations that make it difficult to impossible. Probably the best examples of what a CGA card could do when pushed
+    to the limit is the <a href="https://www.youtube.com/watch?v=H1p1im_2uf4">8088 Corruption</a>, and <a
+        href="https://www.youtube.com/watch?v=MWdG413nNkI">8088 Domination</a> which showcase full motion video playing
+    in 16-color mode on a CGA card!</p>
 
+<p>If we're sorting by capabilities, the EGA card comes second from the last of graphics adapters from this time period.
+    Released in 1984, the EGA card was essentially a strict upgrade over the CGA, and was in general, backwards
+    compatible. EGA would essentially be the de-facto standard until the 90s. While a specific EGA card might be more
+    limited, under EGA, a compatible adapter could display a 16-color image of a resolution of 640×350. As one can see
+    from this screenshot, running an application like AutoCAD becomes much more reasonable under these constraints.</p>
 
-<p>In practice, if you wanted all 16 colors, the best you could get is 160x200 due to a quirk of how analogue TV signals
-    are generated in North America, and other NTSC regions. Since CGA cards included a composite TV hookup, it is
-    possible in theory to just use any color TV as a monitor. In practice, this doesn't work very well because a
-    composite signal. In practice, this lead to 'less than desirable' results, but it did open the door to taking
-    advantage of <a href="https://en.wikipedia.org/wiki/Composite_artifact_colors"></a>NTSC artifacting</a>.</p>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/acad_pump.png" alt="AutoCAD 2.15 in EGA" />
+    </p>
+    <p><b>AutoCAD 2.15 in EGA</b></p>
+</div>
 
-<p>This technique wasn't exactly new, and Apple had used it to do color on the Apple // 8-bit line for years by this
-    point. I've heard claimed that this 16-color mode was officially supported and intended by IBM, but its not quite
-    that cut and dry. The official manual only lists the low resolution mode as supporting all 16-colors. In practice,
-    the composite color mode is implemented by simply using a higher resolution mode, and carefully grouping colors to
-    generate a palette.
-</p>
+<p>The largest problem with the EGA card for CAD work is that the card was not accelerated. That meant the main system
+    CPU would have to re-render an image and then send it to the EGA card to display it. Even with simple applications,
+    its generally possible to see a 'render lag' as the main CPU grinds away at rendering an image under these
+    circumstances. The Professional Graphics Controller would utterly leave the EGA card in the dust however.</p>
 
-<p>IMG: CGA manual</p>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/ibm5175.jpg" alt="PGC Output on a IBM 5175" />
+    </p>
+    <p><b>PGC Output on a IBM 5175</b></p>
+</div>
 
-<p>This generates the necessary signals to cause artifacting to occur, and boom, 16-colors. However, artifacting
-    would only work if a user was using a composite signal, and, this is important mind you, lived in a NTSC region.
-    That meant that Europeans, and most of the world, who used PAL or SECAM were out of luck. There was some period
-    correct software that could actually take advantage of CGA composite coloring such as Maniac Mansion, but it was
-    more a novelty than not.
-</p>
+<p>To put it bluntly, beside being a three PCB sandwich, the Professional Graphics Controller is a beast of a graphics
+    adapter. Capable of displaying 256 colors at 640x480, the Controller also had it's own dedicated 8086 processor and
+    capable of running accelerated drawing commands. This is essentially the same as modern day 2D and 3D acceleration,
+    and the end results seem fairly impressive. For compatibility reasons, the PGC also could emulate a CGA card,
+    although from what I can tell, this emulation was fairly incomplete. To be honest though, it's hard to find anything
+    that can take advantage of the PGC beside CAD software, and there's very limited support for it in emulation.</p>
 
-<p>IMG: AutoCARD</p>
+<p>I wanted to do a demo of the PGC, as MAME in theory can emulate the controller, but in practice, I couldn't
+    get MANE to run; instead it would die repetitively with POST code 101 no matter how I tried to start it. Although I
+    couldn't get MAME's PGC emulation to work, it did lead me to an interesting example applications, and
+    understanding of just what was missing in the Graphical File System.</p>
 
-<p></p>
-<h2>PGS Drivers - The Virtual Device Interface</h2>
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/co2_output.png"
+            alt="IAE/ORAU Long Term Global Energy Economic Model" />
+    </p>
+    <p><b>IAE/ORAU Long Term Global Energy Economic Model</b></p>
+</div>
 
-<h2>Metafiles</h2>
+<p>If someone told me that I would <a href="https://wiki.mamedev.org/index.php/Driver:PGC">find the answer</a> to the
+    Graphical File System's mysteries in a CO2
+    modelling application written for the IEC in the mid-80s, I would have been really skeptical.</p>
+
+<p>This application was linked off the MAME Professional Graphics Series page, and it includes binaries, VDI drivers,
+    and source code (in FORTRAN) for building against the IBM PC Graphical Kernel System.</p>
+
+<div style="margin: auto; text-align: center;">
+    <p><img src="/images/articles/2020/graphical_file_system/gks_box.jpg" alt="Graphical Kernel System Box" />
+    </p>
+    <p><b>Graphical Kernel System Boxart</b></p>
+</div>
+
+<p>Yes, you read that right, the IBM PC Graphical Kernel System. IBM, in their own infinite wisdom, created a product
+    with the same name as the standard. As you can imagine, this made searching for information a real joy. At the time
+    I started production on this video, the Graphical Kernel System hadn't been preserved, and there was going to be a
+    fairly long conversation about how these niche items never seem to get preserved. However, in this case, fate
+    intervened.</p>
+
+<p>I'm a member of several computer tech groups, and most notably, the Computer Reset Warehouse group, a place that has
+    been featured on quite a few retro-tech videos. By sheer chance, all three volumes of the Grpahical Kernel System
+    cropped up at the warehouse, and the finder had posted an image to the group. My eye caught on the distinctive grey
+    and green striping, and a few others had noticed it as well since I had brought up the Graphical File System in
+    another group. I sent a DM to the finder, and he not only dumped the disks, they also scanned the manuals!</p>
+
+<p>In short, another piece of software was saved from the dustbin of history!</p>
+
+<h3>In Closing</h3>
+<p>This dig into IBM's early history has been pretty interesting but very time consuming. I may do a
+    follow-up on the Graphical Kernel System at a later point, but I think it's time to put this topic to bed for now.
+    At least for the moment, what I ahve is an add-on library to another library, which was intended for use with an
+    obscure piece of IBM hardware. I don't think you get odder content than that!</p>
+
+<p>I do hope you all enjoyed this look at IBM strangeness, and I hope you'll all give a look, like, and follow on
+    YouTube. It does make a real difference! Next time, we'll likely get back to working on the Intel branded EISA
+    workstation, and then I have a few other things in the works for the start of the New Year.</p>
+
+<p>~ 73 de NCommander</p>
+
+<p>NOTE: Many of the graphics adapter pictures are from <a
+        href="http://minuszerodegrees.net/5162/cards/5162_cards.htm">MinusZeroDegrees.net</a> which has a large
+    collection of information on old IBM add-on cards.</p>
