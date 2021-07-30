@@ -75,7 +75,7 @@ enableGitInfo = true
   instagram = "fossfirefighter"
   linkedin = "michael-casadevall-a7622312"
   github = "ncommander"
-  email = "michael@casadevell.pro"
+  email = "michael@casadevall.pro"
   
 [[Params.widgets.social.custom]]
   title = "YouTube"
